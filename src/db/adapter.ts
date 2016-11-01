@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Copyright (c) 2016 Thomas Pink
+ *
+ * Use of this source code is governed by the MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
+ */
+
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { SBSerializer } from './serializer';
