@@ -1,6 +1,7 @@
-# ng-storyblok
-
-###Angular 2 Directives and Services for [Storyblok](https://storyblok.com)
+<p align="center">
+  <h1 align="center">ng-storyblok</h1>
+  <p align="center">Angular 2 Directives and Services for [Storyblok](https://storyblok.com)</p>
+</p>
 
 ## Getting Started
 # WIP
