@@ -5,7 +5,7 @@
 <br><br>
 
 ## Getting Started
-# WIP
+
 ### Install the CLI
  
  ```bash
