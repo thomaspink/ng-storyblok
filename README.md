@@ -20,20 +20,24 @@
 
 The new command creates a project with a build system for your Angular app.
 
-### Install Angular Material components 
+### Install ng-storyblok
 
 ```bash
-npm install --save @angular/material
+npm install --save ng-storyblok
 ```
 
 ### Import the ng-storyblok NgModule
   
 **src/app/app.module.ts**
 ```ts
-import { SBModule } from 'ng-storyblok';
+import { SbModule } from 'ng-storyblok';
 // other imports 
 @NgModule({
-  imports: [SBModule.forRoot()],
+  imports: [
+    SbModule.forRoot({
+      accessToken: '[[PUBLIC-SB-TOKEN]]'
+    })
+  ],
   ...
 })
 export class MyAppModule { }
