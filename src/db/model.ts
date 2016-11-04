@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
-export abstract class SBStory {
+export class SBStory {
   id: number;
   name: string;
   slug: string;
@@ -16,4 +16,104 @@ export abstract class SBStory {
   alternates: any[];
   sortByDate: any;
   tagList: any[];
+  content: SBComponent;
+  editable?: string;
+
+  constructor({
+    id,
+    name,
+    slug,
+    fullSlug,
+    created,
+    published,
+    alternates,
+    sortByDate,
+    tagList,
+    content,
+    editable
+  }: {
+      id: number;
+      name: string;
+      slug: string;
+      fullSlug: string;
+      created: Date;
+      published: Date;
+      alternates: any[];
+      sortByDate: any;
+      tagList: any[];
+      content: SBComponent;
+      editable?: string;
+    }) {
+    this.id = id;
+    this.name = name;
+    this.slug = slug;
+    this.fullSlug = fullSlug;
+    this.created = created;
+    this.published = published;
+    this.alternates = alternates;
+    this.sortByDate = sortByDate;
+    this.tagList = tagList;
+    this.content = content;
+    this.editable = editable;
+  }
+
+  toString() {
+    `
+      "id":"${this.id}",
+      "name":"${this.name}",
+      "slug":"${this.slug}",
+      "fullSlug":"${this.fullSlug}",
+      "created":"${this.created.toUTCString()}",
+      "published":"${this.published.toUTCString()}",
+      "alternates":"${this.alternates}",
+      "sortByDate":"${this.sortByDate}",
+      "tagList":"${this.tagList}",
+      "_editable":"${this.editable}",
+      "content": ${this.content.toString()}
+    `
+  }
+}
+
+export class SBComponent {
+  _uid: string;
+  type: string;
+  data: any;
+
+  constructor({
+    _uid,
+    type,
+    data
+  }: {
+      _uid: string;
+      type: string;
+      data: { [key: string]: any }
+    }) {
+    this._uid = _uid;
+    this.type = type;
+    this.data = data;
+  }
+
+  toString() {
+    let str = `{_uid: ${this._uid},\ncomponent: ${this.type},`;
+    let sep = '';
+    for (var key in this.data) {
+      if (this.data.hasOwnProperty(key)) {
+        const value = this.data[key];
+        const strValue = '';
+        str += `${sep}${key}:${value instanceof SBBlok ? value.toString() : JSON.stringify(value)}`
+        sep = ',\n';
+      }
+    }
+    return str + ']';
+  }
+}
+
+export class SBBlok {
+  constructor(public components: SBComponent[]) { }
+
+  toString() {
+    let str = '[';
+    this.components.map(c => c.toString()).join(',\n');
+    return str + ']';
+  }
 }

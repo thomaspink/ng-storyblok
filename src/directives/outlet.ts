@@ -11,7 +11,8 @@ import {
   ViewContainerRef, OnChanges, OnDestroy, Inject, ComponentRef, Injector,
   ResolvedReflectiveProvider, ComponentFactory, ReflectiveInjector
 } from '@angular/core';
-import { componentFromSchema, SBComponent, SBComponentSchema } from '../schema';
+import { SBComponent, SBBlok } from '../db/model';
+import { SBSerializer } from '../db/serializer';
 import { SB_CONFIG, SBConfig } from '../config';
 
 /**
@@ -24,36 +25,33 @@ import { SB_CONFIG, SBConfig } from '../config';
 @Directive({ selector: 'sb-outlet' })
 export class SBOutlet implements OnChanges, OnDestroy {
   private activated: ComponentRef<any>[];
+  private _model: SBComponent[] = [];
 
-  @Input('components') private componentSchemas: Array<SBComponentSchema | SBComponent> = [];
   @Output('activate') activateEvents = new EventEmitter<any>();
-  @Output('deactivate') deactivateEvents = new EventEmitter<any>();
+  @Output('deactivate') deactivateEvents = new EventEmitter<any>(); s
+  @Input('model') set model(values: SBBlok | SBComponent[] | {}[]) {
+    if (values instanceof SBBlok)
+      this._model = values.components;
+    else if (Array.isArray(values) && values.length)
+      this._model = (<Array<SBComponent | {}>>values).map((c) =>
+        c instanceof SBComponent ? c : this._serializer.normalizeComponent(c));
+    else
+      this._model = [];
+  }
 
   constructor(private resolver: ComponentFactoryResolver, private location: ViewContainerRef,
-    @Inject(SB_CONFIG) private config: SBConfig) { }
-  
-  /**
-   * Lifecycle hook that is called when the directive is destroyed.
-   * Will destroy all active component.
-   * 
-   * @memberOf SBOutlet
-   */
+    private _serializer: SBSerializer, @Inject(SB_CONFIG) private config: SBConfig) { }
+
+  /* @internal */
   ngOnDestroy() { this.deactivate(); }
 
-  /**
-   * Lifecycle hook that is called when the "components" input property changes.
-   * All active components will be disabled, and the new ones activated.
-   * 
-   * @memberOf SBOutlet
-   */
+  /* @internal */  
   ngOnChanges() {
-    if (!Array.isArray(this.componentSchemas)) {
+    if (!Array.isArray(this._model)) {
       throw new Error(`You have to provide the component schemas as an array to the sb-outlet`);
     }
-    const schemas = this.componentSchemas.map(schema =>
-      schema instanceof SBComponent ? schema : componentFromSchema(schema));
     this.deactivate();
-    this.activate(schemas, null, null, []);
+    this.activate(this._model, null, null, []);
   }
 
   get isActivated(): boolean { return !!this.activated && !!this.activated.length; }
@@ -86,9 +84,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
     return this.activated;
   }
 
-  /**
-   * @internal
-   */  
+  /* @internal */
   private _activateComponent<C>(schema: SBComponent, loadedResolver: ComponentFactoryResolver,
     loadedInjector: Injector, providers: ResolvedReflectiveProvider[]): ComponentRef<C> {
 
@@ -110,6 +106,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
     const injector = loadedInjector ? loadedInjector : this.location.parentInjector;
     const inj = ReflectiveInjector.fromResolvedProviders(providers, injector);
     const ref = this.location.createComponent(factory, this.location.length, inj, []);
+
     ref.changeDetectorRef.detectChanges();
     return ref;
   }

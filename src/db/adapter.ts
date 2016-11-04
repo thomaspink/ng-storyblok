@@ -7,34 +7,42 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import { SBSerializer } from './serializer';
+import { StoryblokRef } from '../sdk';
+import { Observable } from 'rxjs/Rx';
+import { fromPromise } from 'rxjs/observable/fromPromise';
+import 'rxjs/add/operator/map';
+
 
 @Injectable()
 export abstract class SBAdapter {
-  abstract loadStoryBySlug(): void;
-  abstract loadStoryById(): void;
+  abstract loadStoryBySlug(slug: string, version?: string): Observable<any>;
+  abstract loadStoryById(id: string, version?: string): Observable<any>;
 
-  abstract getStoryBySlug(): void;
-  abstract getStoryById(): void;
+  abstract getStoryBySlug(slug: string, version?: string): void;
+  abstract getStoryById(id: string, version?: string): void;
 }
 
 @Injectable()
-export class SBDefaultAdapter implements SBAdapter {
-  constructor(private _serializer: SBSerializer, private _http: Http) { }
+export class SBSdkAdapter implements SBAdapter {
+  constructor(private _serializer: SBSerializer, private _sdk: StoryblokRef) { }
 
-  loadStoryBySlug(): void {
-    // this._http.get('https://api.storyblok.com/v1/cdn/stories/41107?&token=TI4mZJKY6rPnyrOQS6u3bAtt').lift()
+  loadStoryBySlug(slug: string, version?: string) {
+    return fromPromise(this._sdk.get({ slug: slug, version: version })).map((data) => {
+      return this._serializer.normalizeStory(data);
+    });
   }
 
-  loadStoryById(): void {
+  loadStoryById(id: string, version?: string) {
+    return this.loadStoryBySlug(id, version);
   }
 
-
-  getStoryBySlug(): void {
+  getStoryBySlug(slug: string, version?: string): void {
+    throw new Error('Not yet implemented');
   }
 
-  getStoryById(): void {
+  getStoryById(id: string, version?: string): void {
+    throw new Error('Not yet implemented');
   }
 
 }
