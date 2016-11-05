@@ -77,3 +77,7 @@ export class AppModule { }
 ```
 ## Example
 You can have a look at the [ng-storyblok-demo](https://github.com/thomaspink/ng-storyblok-demo) App to see everything come together. The AppModule with the configuration can be found [here](https://github.com/thomaspink/ng-storyblok-demo/blob/master/src/app/app.module.ts).
+
+
+## Next up
+[Loading data with the Adapter](loading-data.md)
