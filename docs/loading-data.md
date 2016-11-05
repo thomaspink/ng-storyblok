@@ -54,3 +54,5 @@ export class MyComponent {
   }
 }
 ```
+## Normalize Data
+Before we continue, let's have a look at the [normalizing process](serializer.md) that takes place everytime we load data from the API.
