@@ -30,7 +30,7 @@ export class MyComponent {
 
 ## Loading a story
 As we have injected the adapter into our component, it is now time to load your first story.
-To get a story, the adapter provides multiple methods:
+To get a story, the adapter exposes multiple methods:
 
 | method name     | Parameters                                | returns             | Description                                          |
 |-----------------|-------------------------------------------|---------------------|------------------------------------------------------|
@@ -39,3 +39,16 @@ To get a story, the adapter provides multiple methods:
 | getStoryBySlug  | slug: string, version*[optional]*: string | Observable<SBStory> |Gets the Story from the cache by the slug. If story is not yet there, it will load it by calling `loadStoryBySlug`. |
 | getStoryById    | id: string, version*[optional]*: string   | Observable<SBStory> |Gets the Story from the cache by the id. If story is not yet there, it will load it by calling `loadStoryById`. |
 
+As you can see below, we are calling `loadStoryBySlug` with `home` as a slug ont the adapter. The method will return an `Observable` where you can subscribe on. To get the story you can add a next function to the subscribe method, with will be called with the normalized story as a parameter when the data is loaded. For more information on how `Observables` work, take a look on [RxJS](http://reactivex.io/rxjs/)
+```ts
+@Component({
+  selector: 'my-component',
+  ...
+})
+export class MyComponent {
+  constructor(private _sb: SBAdapter) {
+    this._sb.loadStoryBySlug('home').subscribe((story: SBStory) => {
+    });
+  }
+}
+```
