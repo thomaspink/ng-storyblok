@@ -13,7 +13,7 @@ export abstract class SBConfig implements IStoryblokConfig {
   accessToken: string;
   space?: string;
   endPoint?: string;
-  type?: string;
+  type?: 'full' | 'widget';
   map?: {
     [key: string]: Type<any>
   }
