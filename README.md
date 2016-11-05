@@ -29,6 +29,7 @@ npm install --save ng-storyblok
 ```
 
 ### Import the ng-storyblok NgModule
+When importing the module you have to provide a configuration to the `forRoot` method. The config must at least contain the public access token you can find in your storyblok backend.
   
 **src/app/app.module.ts**
 ```ts
