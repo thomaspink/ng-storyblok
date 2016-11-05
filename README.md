@@ -50,7 +50,7 @@ export class MyAppModule { }
 ```
 
 ## Getting started
-See our [Getting Started](https://github.com/thomaspink/ng-storyblok/blob/master/docs/getting-started.md) Guide in your docs for more information.
+See our [Getting Started](docs/getting-started.md) Guide in your docs for more information.
 
 ## Demo
 Have a look at out [ng-storyblok-demo](https://github.com/thomaspink/ng-storyblok-demo) project to see a full Angular2 App with ng-storyblok integration.
