@@ -4,7 +4,7 @@
 </p>
 <br><br>
 ## What is ng-storyblok
-This is the home of ng-storyblok, that brings full Storyblok integration in you Angular 2 App. It includes a sb-outlet Directive for rendering storyblok components on the fly as well as injectable Services for loading, caching data and serializing data as well as a high level SDK.
+This is the home of ng-storyblok, that brings full Storyblok integration in you Angular 2 App. It includes a Directive for rendering storyblok components on the fly as well as injectable Services for loading, caching data and serializing data as well as a high level SDK.
 
 ## Getting Started
 
