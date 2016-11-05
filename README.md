@@ -6,6 +6,9 @@
 ## What is ng-storyblok
 This is the home of ng-storyblok, that brings full Storyblok integration in you Angular 2 App. It includes a Directive for rendering storyblok components on the fly as well as injectable Services for loading, caching data and serializing data as well as a high level SDK.
 
+## Status
+ng-storyblok is still under development and should not be used in production until we pulish version 1.0. For detail information have a look at our [1.0 milestone](https://github.com/thomaspink/ng-storyblok/milestone/1)
+
 ## Installation & Setup
 
 ### Install the CLI
