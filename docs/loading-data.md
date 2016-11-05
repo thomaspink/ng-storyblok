@@ -48,6 +48,8 @@ As you can see below, we are calling `loadStoryBySlug` with `home` as a slug ont
 export class MyComponent {
   constructor(private _sb: SBAdapter) {
     this._sb.loadStoryBySlug('home').subscribe((story: SBStory) => {
+      // yeah i got data
+      console.log(story);
     });
   }
 }
