@@ -47,4 +47,4 @@ export class MyAppModule { }
 ```
 
 ### Getting started
-See our [Getting Started](https://github.com/thomaspink/ng-storyblok/) Guide in your docs for more information.
+See our [Getting Started](https://github.com/thomaspink/ng-storyblok/blob/master/docs/getting-started.md) Guide in your docs for more information.
