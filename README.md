@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">ng-storyblok</h1>
-  <p align="center">Angular 2 Directives and Services for <a href="https://storyblok.com" target="_blank">Storyblok</a></p>
+  <p align="center">Full <a href="https://storyblok.com" target="_blank">Storyblok</a> integration for your Angular2 App!</p>
 </p>
 <br><br>
 ## What is ng-storyblok
