@@ -42,12 +42,29 @@ As you can see below, we are calling `findStory` with `home` as a slug on the st
 })
 export class MyComponent {
   constructor(private _sb: SBAdapter) {
-    this._sb.loadStoryBySlug('home').subscribe((story: SBStory) => {
+    this._sb.findStore('home').subscribe((story: SBStory) => {
       // yeah i got data
       console.log(story);
     });
   }
 }
 ```
-## Normalize Data
-Before we continue, let's have a look at the [normalizing process](serializer.md) that takes place everytime we load data from the API.
+From now on the story for "home" is saved in the store, so next time we need this story we can call `peekStory` for loading it directly from the story, without a extra network request:
+```ts
+@Component({
+  selector: 'my-component',
+  ...
+})
+export class MyComponent {
+  constructor(private _sb: SBAdapter) {
+    this._sb.findStore('home').subscribe((story: SBStory) => {
+      // yeah i got data
+      console.log(story);
+    });
+  }
+  someTimeInTheFuture() {
+    const story = this._sb.peekStore('home');
+    console.log(story);
+  }
+}
+```
