@@ -58,7 +58,6 @@ From now on the story for "home" is saved in the store, so next time we need thi
 export class MyComponent {
   constructor(private _sb: SBAdapter) {
     this._sb.findStore('home').subscribe((story: SBStory) => {
-      // yeah i got data
       console.log(story);
     });
   }
