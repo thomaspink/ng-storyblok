@@ -80,4 +80,4 @@ You can have a look at the [ng-storyblok-demo](https://github.com/thomaspink/ng-
 
 
 ## Next up
-[Loading data using the Store](loading-data.md)
+[Loading data using the Store](store.md)
