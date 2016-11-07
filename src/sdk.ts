@@ -54,7 +54,7 @@ export interface IStoryblok {
   calcPosition();
   setToolTip();
   editElement(e);
-  get(attr: { slug: string; version?: string; }, success: (data: {}) => void, error?: (error: string | any) => void);
+  get(attr: { id?: number; slug?: string; version?: string }, success: (data: {}) => void, error?: (error: string | any) => void);
   on(event: string, fn: (...args: any[]) => void);
   emit(event: string, ...args: any[]);
   toArray(list, start: number),
@@ -73,19 +73,20 @@ export class StoryblokRef {
   private _sb: IStoryblok;
 
   get window():any {
-    return window || global;
+    return window || undefined;
   }
 
   constructor( @Inject(SB_CONFIG) config: SBConfig, @Inject(DOCUMENT) private document: Document) {
     // check if an accessToken is provided
-    if (!config.accessToken) {
+    if (!config.accessToken)
       throw new Error('No public access token found for storyblok. Please insert one in the config');
-    }
+
+    if (!this.window)
+      throw new Error('Storyblok SDK needs window which is not available in this environment.\nAre you using the SDKAdapter or the storyblok SDK on a nodejs server? Use SBHttpAdapter instead!')  
 
     // check if storyblok sdk is available
-    if (!this.window.storyblok) {
+    if (!this.window.storyblok)
       throw new Error('Storyblok sdk not found');
-    }
 
     this._sb = this.window.storyblok;
     this._sb.init({
@@ -106,8 +107,10 @@ export class StoryblokRef {
     return this._sb;
   }
 
-  get(attr: { slug: string; version?: string; }) {
+  get(attr: { id?: number; slug?: string; version?: string }) {
     return new Promise((resolve, reject) => {
+      if (typeof attr.id === 'undefined' && typeof attr.slug === 'undefined')
+        throw new TypeError('Id or slug has to be set in the attributes object!');
       if (!this.isInitialized)
         throw new Error('Can not load a story, because the storyblok in not yet initialized or loaded!');
       this._sb.get(attr, data => resolve(data), error => reject(error));

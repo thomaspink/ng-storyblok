@@ -65,7 +65,7 @@ export class SBDefaultSerializer implements SBSerializer {
     return new SBComponent({
       _uid: data._uid + '',
       type: data.component + '',
-      data: properties
+      model: properties
     })
   }
 

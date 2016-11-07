@@ -77,28 +77,28 @@ export class SBStory {
 export class SBComponent {
   _uid: string;
   type: string;
-  data: any;
+  model: any;
 
   constructor({
     _uid,
     type,
-    data
+    model
   }: {
       _uid: string;
       type: string;
-      data: { [key: string]: any }
+      model: { [key: string]: any }
     }) {
     this._uid = _uid;
     this.type = type;
-    this.data = data;
+    this.model = model;
   }
 
   toString() {
     let str = `{_uid: ${this._uid},\ncomponent: ${this.type},`;
     let sep = '';
-    for (var key in this.data) {
-      if (this.data.hasOwnProperty(key)) {
-        const value = this.data[key];
+    for (var key in this.model) {
+      if (this.model.hasOwnProperty(key)) {
+        const value = this.model[key];
         const strValue = '';
         str += `${sep}${key}:${value instanceof SBBlok ? value.toString() : JSON.stringify(value)}`
         sep = ',\n';

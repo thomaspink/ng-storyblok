@@ -7,42 +7,34 @@
  */
 
 import { Injectable } from '@angular/core';
-import { SBSerializer } from './serializer';
 import { StoryblokRef } from '../sdk';
 import { Observable } from 'rxjs/Rx';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import 'rxjs/add/operator/map';
-
 
 @Injectable()
 export abstract class SBAdapter {
-  abstract loadStoryBySlug(slug: string, version?: string): Observable<any>;
-  abstract loadStoryById(id: string, version?: string): Observable<any>;
-
-  abstract getStoryBySlug(slug: string, version?: string): void;
-  abstract getStoryById(id: string, version?: string): void;
+  abstract loadStory(slug: string, version?: string): Observable<any>;
+  abstract loadStory(id: number, version?: string): Observable<any>;
 }
 
 @Injectable()
 export class SBSdkAdapter implements SBAdapter {
-  constructor(private _serializer: SBSerializer, private _sdk: StoryblokRef) { }
+  constructor(private _sdk: StoryblokRef) { }
 
-  loadStoryBySlug(slug: string, version?: string) {
-    return fromPromise(this._sdk.get({ slug: slug, version: version })).map((data) => {
-      return this._serializer.normalizeStory(data);
-    });
+  loadStory(slug: string, version?: string): Observable<any>;
+  loadStory(id: number, version?: string): Observable<any>;  
+  loadStory(slugOrId: string | number, version?: string): Observable<any> {
+    const options: { id?: number; slug?: string; version?: string } = {};
+    if (typeof slugOrId === 'number')
+      options.id = slugOrId;
+    else if (typeof slugOrId === 'string')
+      options.slug = slugOrId;
+    else
+      throw new TypeError(`You have to provide the slug(string) or the id(number) as the first parameter!`);
+    if (typeof version === 'string')
+      options.version = version;
+    else if(typeof version !== 'undefined')
+      throw new TypeError('The version parameter for `loadStory` has to be a string!');
+    return fromPromise(this._sdk.get(options));
   }
-
-  loadStoryById(id: string, version?: string) {
-    return this.loadStoryBySlug(id, version);
-  }
-
-  getStoryBySlug(slug: string, version?: string): void {
-    throw new Error('Not yet implemented');
-  }
-
-  getStoryById(id: string, version?: string): void {
-    throw new Error('Not yet implemented');
-  }
-
 }
