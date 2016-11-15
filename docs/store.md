@@ -27,12 +27,26 @@ export class MyComponent {
 As we have injected the store into our component, it is now time to load your first story.
 To get a story, the store exposes multiple methods:
 
-| method name     | Parameters                          | returns             | Description                                          |
-|-----------------|-------------------------------------|---------------------|------------------------------------------------------|
-| findStory | slug: string, version*[optional]*: string | Observable<SBStory> | Use `findStory` to retrieve a story by its slug. This will return an Observable that fulfills with the requested record. |
-| findStory | id: number, version*[optional]*: string   | Observable<SBStory> | Use `findStory` to retrieve a story by its id. This will return an Observable that fulfills with the requested record. |
-| peekStory | slug: string, version*[optional]*: string | SBStory             | Use `peekStory` to retrieve a story by its slug, without making a network request. This will return the story only if it is already present in the store. |
-| peekStory | id: number, version*[optional]*: string   | SBStory             | Use `peekStory` to retrieve a story by its id, without making a network request. This will return the story only if it is already present in the store. |
+### `story`
+Get an Observable on a story by a given slug or ID. When subscribing or switching it to the "hot" state, the method will lookup the story from the store or otherwise fetch it from the adapter. Everytime the story changes, gets updated or reloaded (see `reloadStory`) the Observer will call next with the new resolved story.
+
+### `findStory`
+Get a story by a given slug or ID by looking up the story from the store if it is available, otherwise it will trigger a fetch from the server.
+
+This method will asynchronously peek the story from the store. If the story is not present in the store (cache), it will be loaded by the adapters `fetchStory` method.
+A story is available if it has been fetched earlier.
+
+### `peekStory`
+Get a story by a given slug or ID without triggering a fetch.
+
+This method will synchronously return the story if it is available in the store, otherwise it will return `undefined`.
+A story is available if it has been fetched earlier.
+
+### `loadStory`
+Get a story by a given slug or ID by triggering a fetch on the adapter and loading it fresh from the server.
+
+This method will asynchronously fetch the story from the adapter and return a Promise that will be resolved with the story.
+
 
 As you can see below, we are calling `findStory` with `home` as a slug on the store. The method will return an `Observable` where you can subscribe on. To get the story you can add a next function to the subscribe method, with will be called with the normalized story as a parameter when the data is loaded. For more information on how `Observables` work, take a look on [RxJS](http://reactivex.io/rxjs/)
 ```ts
