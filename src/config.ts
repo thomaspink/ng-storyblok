@@ -18,4 +18,5 @@ export abstract class SBConfig implements IStoryblokConfig {
     [key: string]: Type<any>
   }
 }
+
 export const SB_CONFIG = new OpaqueToken('SB_CONFIG');
