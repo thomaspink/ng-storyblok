@@ -31,7 +31,8 @@ To get a story, the store exposes multiple methods:
 Get an Observable on a story by a given slug or ID. When subscribing or switching it to the "hot" state, the method will lookup the story from the store or otherwise fetch it from the adapter. Everytime the story changes, gets updated or reloaded (see `reloadStory`) the Observer will call next with the new resolved story and will then notify all subscribers.
 
 This method works with RxJS. If you don't know what this is, have a look on [reactivex.io/rxjs](//reactivex.io/rxjs)
-** THIS SHOULD BE YOUR PREFERED WAY **
+
+**THIS SHOULD BE YOUR PREFERED WAY**
 
 #### *Example*
 ```ts
