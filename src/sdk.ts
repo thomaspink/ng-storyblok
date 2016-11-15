@@ -108,11 +108,19 @@ export class StoryblokRef {
   }
 
   get(attr: { id?: number; slug?: string; version?: string }) {
+    if (typeof attr !== 'object')
+      throw new TypeError('You have to provide an attributes object to the `get` method. The object should at least consist of an `id` or a `slug`');
+    if (typeof attr.id === 'undefined' && typeof attr.slug === 'undefined')
+      throw new TypeError('Id or slug has to be set in the attributes object!');
+    if (!this.isInitialized)
+      throw new Error('Can not load a story, because the storyblok in not yet initialized or loaded!');
+    
+    // TODO: Rework if storyblok sdk is fixed
+    if (attr.id) {
+      attr.slug = attr.id + '';
+    }
+
     return new Promise((resolve, reject) => {
-      if (typeof attr.id === 'undefined' && typeof attr.slug === 'undefined')
-        throw new TypeError('Id or slug has to be set in the attributes object!');
-      if (!this.isInitialized)
-        throw new Error('Can not load a story, because the storyblok in not yet initialized or loaded!');
       this._sb.get(attr, data => resolve(data), error => reject(error));
     });
   }
