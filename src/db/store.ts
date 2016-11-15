@@ -111,6 +111,7 @@ export class SBDefaultStore implements SBStore {
 
   constructor(private _adapter: SBAdapter, private _serializer: SBSerializer) { }
 
+  /* @override */   
   story(slugOrId: string | number, version?: string): Observable<SBStory> {
     return Observable.create((observer: Observer<SBStory>) => {
       this.findStory(slugOrId, version).then(s => {
