@@ -112,15 +112,18 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
     if (typeof version !== 'string' && typeof version !== 'undefined')
       throw new TypeError('The version parameter for `fetchStory` has to be a string!');
 
-    return new Promise((resolve, reject) =>
-      this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`).subscribe(
-        response => {
-          const body = response.json();
-          if (body)
-            resolve(body);
-          else
-            reject('Could not load Story. Response body is empty!');
-        },
-        error => reject(error)));
+    return new Promise((resolve, reject) => {
+      const key = 'story#' + slugOrId;
+      if (!this._hasPending(key))
+        this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`).subscribe(
+          response => {
+            const body = response.json();
+            if (body)
+              this._resolvePending(key, body);
+            else
+              this._rejectPending(key, 'Could not load Story. Response body is empty!');
+          }, error => this._rejectPending(key, error));
+      this._addPending(key, resolve, reject);
+    });
   }
 }
