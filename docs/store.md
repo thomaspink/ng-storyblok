@@ -28,7 +28,26 @@ As we have injected the store into our component, it is now time to load your fi
 To get a story, the store exposes multiple methods:
 
 ### `story`
-Get an Observable on a story by a given slug or ID. When subscribing or switching it to the "hot" state, the method will lookup the story from the store or otherwise fetch it from the adapter. Everytime the story changes, gets updated or reloaded (see `reloadStory`) the Observer will call next with the new resolved story.
+Get an Observable on a story by a given slug or ID. When subscribing or switching it to the "hot" state, the method will lookup the story from the store or otherwise fetch it from the adapter. Everytime the story changes, gets updated or reloaded (see `reloadStory`) the Observer will call next with the new resolved story and will then notify all subscribers.
+
+This method works with RxJS. If you don't know what this is, have a look on [reactivex.io/rxjs](//reactivex.io/rxjs)
+** THIS SHOULD BE YOUR PREFERED WAY **
+
+#### *Example*
+```ts
+@Component({
+  selector: 'my-component',
+  ...
+})
+export class MyComponent {
+  constructor(private _sb: SBAdapter) {
+    this._sb.story('home').subscribe(story => {
+      // yeah i got data
+      console.log(story);
+    });
+  }
+}
+```
 
 ### `findStory`
 Get a story by a given slug or ID by looking up the story from the store if it is available, otherwise it will trigger a fetch from the server.
@@ -91,29 +110,6 @@ export class MyComponent {
       // yeah i got data
       console.log(story);
     });
-  }
-}
-```
-```
-
-
-The method will return a `Observable` where you can subscribe on. To get the story you can add a next function to the subscribe method, with will be called with the normalized story as a parameter when the data is loaded. For more information on how `Observables` work, take a look on [RxJS](http://reactivex.io/rxjs/)
-
-From now on the story for "home" is saved in the store, so next time we need this story we can call `peekStory` for loading it directly from the story, without a extra network request:
-```ts
-@Component({
-  selector: 'my-component',
-  ...
-})
-export class MyComponent {
-  constructor(private _sb: SBAdapter) {
-    this._sb.findStore('home').subscribe((story: SBStory) => {
-      console.log(story);
-    });
-  }
-  someTimeInTheFuture() {
-    const story = this._sb.peekStore('home');
-    console.log(story);
   }
 }
 ```
