@@ -114,3 +114,34 @@ export class MyComponent {
   }
 }
 ```
+
+## Usage/Full Example
+For the full app visit: [github.com/thomaspink/ng-storyblok-demo](https://github.com/thomaspink/ng-storyblok-demo)
+
+*home.component.ts*
+```ts
+import { Component } from '@angular/core';
+import { SBStore, SBStory, SBComponent } from 'ng-storyblok';
+import { Observable } from 'rxjs/observable';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent {
+  story: any;
+  isLoading = true;
+  isLoadingError = false;
+
+  constructor(private _sb: SBStore) {
+    this.story = this._sb.story('home').map((data: SBStory) => data.content.model);
+  }
+}
+
+```
+*home.component.html*
+```ts
+<h3>{{(story | async)?.headline}}</h3>
+<p>{{(story | async )?.text}}</p>
+```
