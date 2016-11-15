@@ -36,7 +36,7 @@ Get a story by a given slug or ID by looking up the story from the store if it i
 This method will asynchronously peek the story from the store. If the story is not present in the store (cache), it will be loaded by the adapters `fetchStory` method.
 A story is available if it has been fetched earlier.
 
-*Example:*
+#### *Example*
 As you can see in this example, we are calling `findStory` with `home` as a slug on the store. The method will return a `Promise` that will be resolved with the story. If you are using `findStory` it does not matter if the story is already loaded or not. The store will try to resolve the story from the local cache or load it from the server if it is not found.
 ```ts
 @Component({
@@ -59,7 +59,7 @@ Get a story by a given slug or ID without triggering a fetch.
 This method will synchronously return the story if it is available in the store, otherwise it will return `undefined`.
 A story is available if it has been fetched earlier.
 
-*Example:*
+#### *Example*
 ```ts
 @Component({
   selector: 'my-component',
@@ -78,8 +78,26 @@ Get a story by a given slug or ID by triggering a fetch on the adapter and loadi
 
 This method will asynchronously fetch the story from the adapter and return a Promise that will be resolved with the story.
 
+#### *Example*
+As you can see below, we are calling `loadStory` with `home` as a slug on the store. The method will then **always load the story from the storyblok server** using the adapter. It returns a promise which will resolve with the story once the fetching has been finished or reject if an error appears. The resolved story will be stored(cached). From now on you can access the story synchronously by using `peekStory`.
+```ts
+@Component({
+  selector: 'my-component',
+  ...
+})
+export class MyComponent {
+  constructor(private _sb: SBAdapter) {
+    this._sb.loadStory('home').then((story: SBStory) => {
+      // yeah i got data
+      console.log(story);
+    });
+  }
+}
+```
+```
 
-As you can see below, we are calling `findStory` with `home` as a slug on the store. The method will return an `Observable` where you can subscribe on. To get the story you can add a next function to the subscribe method, with will be called with the normalized story as a parameter when the data is loaded. For more information on how `Observables` work, take a look on [RxJS](http://reactivex.io/rxjs/)
+
+The method will return a `Observable` where you can subscribe on. To get the story you can add a next function to the subscribe method, with will be called with the normalized story as a parameter when the data is loaded. For more information on how `Observables` work, take a look on [RxJS](http://reactivex.io/rxjs/)
 
 From now on the story for "home" is saved in the store, so next time we need this story we can call `peekStory` for loading it directly from the story, without a extra network request:
 ```ts
