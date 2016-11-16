@@ -9,7 +9,7 @@
 import {
   Directive, ComponentFactoryResolver, Input, Output, EventEmitter,
   ViewContainerRef, OnChanges, OnDestroy, Inject, ComponentRef, Injector,
-  ResolvedReflectiveProvider, ComponentFactory, ReflectiveInjector
+  ResolvedReflectiveProvider, ComponentFactory, ReflectiveInjector, SimpleChange
 } from '@angular/core';
 import { SBComponent } from '../db/model';
 import { SBSerializer } from '../db/serializer';
@@ -90,21 +90,34 @@ export class SBOutlet implements OnChanges, OnDestroy {
     if (!this.config.map) {
       throw new Error(`Cannot activate component in sb-outlet if no map is provided in the config.`);
     }
-    const component = this.config.map[schema.type];
-    if (!component) {
+    const componentType = this.config.map[schema.type];
+    if (!componentType) {
       throw new Error(`Cannot activate component because the map in the config has no entry for "${schema.type}".`);
     }
 
     let factory: ComponentFactory<any>;
     if (loadedResolver) {
-      factory = loadedResolver.resolveComponentFactory(component);
+      factory = loadedResolver.resolveComponentFactory(componentType);
     } else {
-      factory = this.resolver.resolveComponentFactory(component);
+      factory = this.resolver.resolveComponentFactory(componentType);
     }
 
     const injector = loadedInjector ? loadedInjector : this.location.parentInjector;
     const inj = ReflectiveInjector.fromResolvedProviders(providers, injector);
     const ref = this.location.createComponent(factory, this.location.length, inj, []);
+
+    const changes = {};    
+    for (let key in schema.model) {
+      const value = schema.model[key];
+      if (schema.model.hasOwnProperty(key) && value !== ref.instance[key]) {
+        changes[key] = new SimpleChange(ref.instance[key], value);
+        ref.instance[key] = value;
+      }
+    }
+
+    if (typeof ref.instance.ngOnChanges === 'function') {
+      ref.instance.ngOnChanges(changes);
+    }
 
     ref.changeDetectorRef.detectChanges();
     return ref;
