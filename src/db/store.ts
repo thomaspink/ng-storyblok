@@ -30,8 +30,8 @@ export abstract class SBStore  {
   
   /**
    * Get an Observable on a story by a given slug or ID. When subscribing
-   * or switching it to the "hot"" state, the method will lookup the story
-   * from the story or otherwise fetch it from the adapter. Everytime the
+   * or switching it to the "hot" state, the method will lookup the story
+   * from the store or otherwise fetch it from the adapter. Everytime the
    * story changes, gets updated or reloaded (see `reloadStory`) the
    * Observer will call next with the new resolved story.
    *
@@ -94,7 +94,7 @@ export abstract class SBStore  {
 
   /**
    * This method will asynchronously load a story again by calling `fetchStory` on the adapter
-   * and update the story in the story.
+   * and update the story in the store.
    * 
    * @param {SBStory} story
    * @returns {Promise<SBStory>}
@@ -102,10 +102,76 @@ export abstract class SBStore  {
    * @memberOf SBStore
    */
   abstract reloadStory(story: SBStory): Promise<SBStory>;
+  
+  /**
+   * Get an Observable on a collection of stories by a given path. When subscribing
+   * or switching it to the "hot" state, the method will lookup the collection and
+   * all its stories from the story or otherwise fetch it from the adapter.
+   * Everytime the collection changes, gets updated or reloaded (see `reloadCollection`)
+   * the Observer will call next with the new resolved collection.
+   *
+   * For more information on Observables or Observers have a look on RxJS:
+   * http://reactivex.io/rxjs/
+   * 
+   * @param {string} path
+   * @returns {Observable<SBStory[]>}
+   * 
+   * @memberOf SBStore
+   */
   abstract collection(path: string): Observable<SBStory[]>;
+  
+  /**
+   * Get a collection of stories by a path by looking up the story from the store if it is
+   * available, otherwise it will trigger a fetch from the server.
+   *
+   * This method will asynchronously peek the collection from the store. If the collection is
+   * not present in the store (cache), it will be loaded by the adapters `fetchCollection` method.
+   * A collection is available if it has been fetched earlier.
+   * 
+   * @param {string} path
+   * @returns {Promise<SBStory[]>}
+   * 
+   * @memberOf SBStore
+   */
   abstract findCollection(path: string): Promise<SBStory[]>;
+  
+  /**
+   * Get a collection of stories by a given path without triggering a fetch.
+   *
+   * This method will synchronously return the collection if it is available in the store,
+   * otherwise it will return `undefined`.
+   * A story is available if it has been fetched earlier.
+   * 
+   * @param {string} path
+   * @returns {SBStory[]}
+   * 
+   * @memberOf SBStore
+   */
   abstract peekCollection(path: string): SBStory[];
+  
+  /**
+   * Get a collection of stories by a given path by triggering a fetch on the adapter
+   * and loading it fresh from the server.
+   *
+   * This method will asynchronously fetch the collection from the adapter and return
+   * a Promise that will be resolved with the collection.
+   * 
+   * @param {string} path
+   * @returns {Promise<SBStory[]>}
+   * 
+   * @memberOf SBStore
+   */
   abstract loadCollection(path: string): Promise<SBStory[]>;
+
+  /**
+   * This method will asynchronously reload a collection again by calling `fetchCollection`
+   * on the adapter and update the collection in the store.
+   * 
+   * @param {string} path
+   * @returns {Promise<SBStory[]>}
+   * 
+   * @memberOf SBStore
+   */
   abstract reloadCollection(path: string): Promise<SBStory[]>;
 }
 
