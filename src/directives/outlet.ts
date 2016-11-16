@@ -11,8 +11,9 @@ import {
   ViewContainerRef, OnChanges, OnDestroy, Inject, ComponentRef, Injector,
   ResolvedReflectiveProvider, ComponentFactory, ReflectiveInjector
 } from '@angular/core';
-import { SBComponent, SBBlok } from '../db/model';
+import { SBComponent } from '../db/model';
 import { SBSerializer } from '../db/serializer';
+import { SBComponentSchema } from '../db/schema';
 import { SB_CONFIG, SBConfig } from '../config';
 
 /**
@@ -29,11 +30,9 @@ export class SBOutlet implements OnChanges, OnDestroy {
 
   @Output('activate') activateEvents = new EventEmitter<any>();
   @Output('deactivate') deactivateEvents = new EventEmitter<any>(); s
-  @Input('model') set model(values: SBBlok | SBComponent[] | {}[]) {
-    if (values instanceof SBBlok)
-      this._model = values.components;
-    else if (Array.isArray(values) && values.length)
-      this._model = (<Array<SBComponent | {}>>values).map((c) =>
+  @Input('model') set model(values: SBComponent[] | SBComponentSchema[]) {
+    if (Array.isArray(values) && values.length)
+      this._model = (<Array<SBComponent | SBComponentSchema>>values).map((c) =>
         c instanceof SBComponent ? c : this._serializer.normalizeComponent(c));
     else
       this._model = [];

@@ -8,10 +8,8 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
-import { fromPromise } from 'rxjs/observable/fromPromise';
 import { StoryblokRef } from '../sdk';
-import { SBStory } from './model';
+import { SBStorySchema } from './schema';
 import { SB_CONFIG, SBConfig } from '../config';
 
 @Injectable()
@@ -19,21 +17,33 @@ export abstract class SBAdapter {
   /**
    * This method will fetch a story by it's slug or id from storyblok and return a Promise
    * that will be resolved with the story's raw data.
-   * 
+   *
    * @param {(string | number)} slugOrId
    * @param {string} [version]
-   * @returns {Promise<{}>}
-   * 
+   * @returns {Promise<SBStorySchema>}
+   *
    * @memberOf SBAdapter
    */
-  abstract fetchStory(slugOrId: string | number, version?: string): Promise<{}>;
+  abstract fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema>;
+
+  /**
+   * This method will fetch a whole collection of stories by it's path and return a Promise
+   * that will be resolved with the collection.
+   *
+   * @param {string} path
+   * @returns {Promise<SBStorySchema[]>}
+   *
+   * @memberOf SBAdapter
+   */
+  abstract fetchCollection(path: string): Promise<SBStorySchema[]>;
+
 }
 
-/* @internal */ 
+/* @internal */
 export class SBBaseAdapter {
-  private _pending: { [key: string]: { resolve: (s: any) => void, reject: (error: any) => void }[] } = {};  
-  
-  /* @internal */ 
+  private _pending: { [key: string]: { resolve: (s: any) => void, reject: (error: any) => void }[] } = {};
+
+  /* @internal */
   protected _addPending(key: string, resolve: (s: any) => void, reject: (error: any) => void = () => undefined) {
     if (!Array.isArray(this._pending[key])) {
       this._pending[key] = [{resolve: resolve, reject: reject}];
@@ -42,13 +52,13 @@ export class SBBaseAdapter {
     }
   }
 
-  /* @internal */ 
+  /* @internal */
   protected _hasPending(key: string) {
     const pending = this._pending[key];
     return Array.isArray(pending) && pending.length;
   }
 
-  /* @internal */   
+  /* @internal */
   protected _resolvePending(key: string, payload: any) {
     const pending = this._pending[key];
     if (Array.isArray(pending)) {
@@ -56,8 +66,8 @@ export class SBBaseAdapter {
     }
     this._pending[key] = undefined;
   }
-  
-  /* @internal */   
+
+  /* @internal */
   protected _rejectPending(key: string, error: any) {
     const pending = this._pending[key];
     if (Array.isArray(key)) {
@@ -69,11 +79,11 @@ export class SBBaseAdapter {
 
 @Injectable()
 export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
-  
+
   constructor(private _sdk: StoryblokRef) { super(); }
 
-  /* @override */    
-  fetchStory(slugOrId: string | number, version?: string): Promise<SBStory> {
+  /* @override */
+  fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
     const options: { id?: number; slug?: string; version?: string } = {};
     if (typeof slugOrId === 'number')
       options.id = slugOrId;
@@ -96,17 +106,22 @@ export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
       this._addPending(key, resolve, reject);
     });
   }
+
+  /* @override */
+  fetchCollection(path: string): Promise<SBStorySchema[]> {
+    throw new Error('`fetchCollection` is not yet supported when using the SBSdkAdapter. Please use the SBHttpAdapter instead.')
+  }
 }
 
 @Injectable()
 export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
 
   private _host = 'https://api.storyblok.com/v1/cdn';
-  
+
   constructor(private _http: Http, @Inject(SB_CONFIG) private _config: SBConfig) { super(); }
 
-  /* @override */    
-  fetchStory(slugOrId: string | number, version?: string): Promise<SBStory> {
+  /* @override */
+  fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
     if (typeof slugOrId !== 'number' && typeof slugOrId !== 'string')
       throw new TypeError(`You have to provide the slug(string) or the id(number) as the first parameter!`);
     if (typeof version !== 'string' && typeof version !== 'undefined')
@@ -122,6 +137,26 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
               this._resolvePending(key, body);
             else
               this._rejectPending(key, 'Could not load Story. Response body is empty!');
+          }, error => this._rejectPending(key, error));
+      this._addPending(key, resolve, reject);
+    });
+  }
+
+  /* @override */
+  fetchCollection(path: string): Promise<SBStorySchema[]> {
+    if(typeof path !== 'string')
+      throw new TypeError(`No valid path provided to fetchCollection method`);
+
+    return new Promise((resolve, reject) => {
+    const key = 'collection#' + path;
+    if (!this._hasPending(key))
+      this._http.get(`${this._host}/stories/?token=${this._config.accessToken}&starts_with=${path}`).subscribe(
+        response => {
+            const body = response.json();
+            if (body && body.stories)
+              this._resolvePending(key, body.stories);
+            else
+              this._rejectPending(key, 'Could not load Collection. Response body is empty!');
           }, error => this._rejectPending(key, error));
       this._addPending(key, resolve, reject);
     });

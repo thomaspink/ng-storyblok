@@ -100,20 +100,10 @@ export class SBComponent {
       if (this.model.hasOwnProperty(key)) {
         const value = this.model[key];
         const strValue = '';
-        str += `${sep}${key}:${value instanceof SBBlok ? value.toString() : JSON.stringify(value)}`
+        str += `${sep}${key}:${JSON.stringify(value)}`
         sep = ',\n';
       }
     }
-    return str + ']';
-  }
-}
-
-export class SBBlok {
-  constructor(public components: SBComponent[]) { }
-
-  toString() {
-    let str = '[';
-    this.components.map(c => c.toString()).join(',\n');
     return str + ']';
   }
 }

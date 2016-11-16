@@ -7,7 +7,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { SBStory, SBComponent, SBBlok } from './model';
+import { SBStory, SBComponent } from './model';
+import { SBComponentSchema, SBStorySchema } from './schema';
 
 /**
  * Normally, the store will use the serializer to convert a json or string
@@ -26,39 +27,49 @@ export abstract class SBSerializer {
   /**
    * Converts a json or string story payload into the normalized form and creates an SBStory class.
    * 
-   * @param {(string | Object)} payload
+   * @param {(string | SBStorySchema)} payload
    * @returns {SBStory}
    * 
    * @memberOf SBSerializer
    */
-  abstract normalizeStory(payload: string | Object): SBStory;
+  abstract normalizeStory(payload: string | SBStorySchema): SBStory;
 
   /**
    * Converts a json or string component payload into the normalized form and creates an SBComponent class.
    * 
-   * @param {(string | Object)} payload
+   * @param {(string | SBComponentSchema)} payload
    * @returns {SBComponent}
    * 
    * @memberOf SBSerializer
    */
-  abstract normalizeComponent(payload: string | Object): SBComponent;
+  abstract normalizeComponent(payload: string | SBComponentSchema): SBComponent;
 
   /**
-   * Converts a json or string blok payload into the normalized form and creates an SBBlok class.
+   * Converts a json or string blok payload into the normalized form and creates an array of SBComponent classes.
    * 
-   * @param {(string | { _uid: string; component: string;[key: string]: any }[])} payload
-   * @returns {SBBlok}
+   * @param {(string | SBComponentSchema[])} payload
+   * @returns {SBComponent[]}
    * 
    * @memberOf SBSerializer
    */
-  abstract normalizeBlok(payload: string | { _uid: string; component: string;[key: string]: any }[]): SBBlok;
+  abstract normalizeBlok(payload: string | SBComponentSchema[]): SBComponent[];
+
+  /**
+   * Converts a json or string blok payload into the normalized form and creates an array of SBStory.
+   * 
+   * @param {(string | {}[])} payload
+   * @returns {SBStory[]}
+   * 
+   * @memberOf SBSerializer
+   */
+  abstract normalizeCollection(payload: string | SBStorySchema[]): SBStory[];
 }
 
 @Injectable()
 export class SBDefaultSerializer implements SBSerializer {
 
-  /* @override */  
-  normalizeStory(payload: string | Object) {
+  /* @override */
+  normalizeStory(payload: string | SBStorySchema) {
     const data: any = typeof payload === 'string' ? JSON.parse(payload) : payload;
     const story = data.story || data;
 
@@ -82,8 +93,8 @@ export class SBDefaultSerializer implements SBSerializer {
 
   }
 
-  /* @override */  
-  normalizeComponent(payload: string | Object): SBComponent {
+  /* @override */
+  normalizeComponent(payload: string | SBComponentSchema): SBComponent {
     const data: any = typeof payload === 'string' ? JSON.parse(payload) : payload;
     if (!this._isComponent) {
       throw new Error('Could not normalize storyblok component');
@@ -110,29 +121,43 @@ export class SBDefaultSerializer implements SBSerializer {
     })
   }
 
-  /* @override */  
-  normalizeBlok(payload: string | { _uid: string; component: string;[key: string]: any }[]) {
-    const data: { _uid: string; component: string;[key: string]: any }[]
+  /* @override */
+  normalizeBlok(payload: string | SBComponentSchema[]) {
+    const data: SBComponentSchema[]
       = typeof payload === 'string' ? JSON.parse(payload) : payload;
     if (!this._isBlock(data)) {
       throw new Error(`Could not normalize Blok`);
     }
-    return new SBBlok(data.map(c => this.normalizeComponent(c)))
+    return data.map(c => this.normalizeComponent(c))
   }
 
-  /* @internal */ 
-  private _isStory(payload: { id: number }) {
+  /* @override */
+  normalizeCollection(payload: string | SBStorySchema[]) {
+    const data: SBStorySchema[] = typeof payload === 'string' ? JSON.parse(payload) : payload;
+    if (!this._isCollection(data)) {
+      throw new Error(`Could not normalize Collection`);
+    }
+    return data.map(s => this.normalizeStory(s));
+  }
+
+  /* @internal */
+  private _isStory(payload: SBStorySchema) {
     return typeof payload.id === 'number';
   }
 
-  /* @internal */ 
-  private _isComponent(payload: { _uid: string; component: string;[key: string]: any }) {
+  /* @internal */
+  private _isComponent(payload: SBComponentSchema) {
     return typeof payload === 'object' && !Array.isArray(payload) &&
       typeof payload._uid === 'string' && typeof payload.component === 'string';
   }
 
-  /* @internal */ 
-  private _isBlock(payload: { _uid: string; component: string;[key: string]: any }[]) {
+  /* @internal */
+  private _isBlock(payload: SBComponentSchema[]) {
     return Array.isArray(payload) && payload.filter(c => this._isComponent(c)).length === payload.length;
+  }
+
+  /* @internal */
+  private _isCollection(payload: SBStorySchema[]) {
+    return Array.isArray(payload) && payload.filter(c => this._isStory(c)).length === payload.length;
   }
 }
