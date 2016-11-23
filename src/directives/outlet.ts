@@ -29,7 +29,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
   private _model: SBComponent[] = [];
 
   @Output('activate') activateEvents = new EventEmitter<any>();
-  @Output('deactivate') deactivateEvents = new EventEmitter<any>(); s
+  @Output('deactivate') deactivateEvents = new EventEmitter<any>();
   @Input('model') set model(values: SBComponent[] | SBComponentSchema[]) {
     if (Array.isArray(values) && values.length)
       this._model = (<Array<SBComponent | SBComponentSchema>>values).map((c) =>
