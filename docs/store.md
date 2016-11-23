@@ -145,3 +145,6 @@ export class HomeComponent {
 <h3>{{(story | async)?.headline}}</h3>
 <p>{{(story | async )?.text}}</p>
 ```
+
+## Next up
+[Creating Components dynamically using the SBOutlet Directive](outlet.md)
