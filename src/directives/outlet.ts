@@ -17,7 +17,8 @@ import { SBComponentSchema } from '../db/schema';
 import { SB_CONFIG, SBConfig } from '../config';
 
 /**
- * 
+ * The SBOutlet Directive acts as a placeholder for
+ * dynamically creating components based on a provided list.
  * 
  * @export
  * @class SBOutlet
