@@ -254,6 +254,7 @@ export class SBDefaultStore implements SBStore {
   loadCollection(path: string): Promise<SBStory[]> {
     return this._adapter.fetchCollection(path).then(c => {
       const collection = this._serializer.normalizeCollection(c);
+      collection.forEach(story => this._setStoryObject(story));
       this._setCollectionObject(path, collection);
       return collection;
     })
@@ -266,8 +267,16 @@ export class SBDefaultStore implements SBStore {
 
   /* @internal */  
   private _peekStoryObject(slugOrId: number | string, version?: string): StoryObject {
-    const id = typeof slugOrId === 'number' && slugOrId;
-    const slug = typeof slugOrId === 'string' && slugOrId;
+    let id = typeof slugOrId === 'number' ? slugOrId : __UNDEFINED__;
+    let slug = typeof slugOrId === 'string' ? slugOrId : __UNDEFINED__;
+    if (slug && !isNaN(<any>slug)) {
+      // Not shure if we should throw an error or parse the ID to a number
+      // if it is provided as a string.
+      // Code for parsing is commented after the error
+      throw new Error(`You are requesting a story with th ID "${slug}" but it has to be a number not a string`);
+      // id = parseInt(slug, 10);
+      // slug = __UNDEFINED__;
+    }
     if (this._lastPeekedStory && this._lastPeekedStory.story &&
        (this._lastPeekedStory.story.id === id || this._lastPeekedStory.story.slug === slug))
       return this._lastPeekedStory;
