@@ -5,7 +5,11 @@
   "main": "index.ts",
   "scripts": {
     "build": "rm -rf dist && tsc && rollup -c rollup.test.config.js",
-    "test": "npm run build && karma start --single-run"
+    "build:watch": "rm -rf dist && concurrently \"tsc -w\" \"npm run delayed_rollup\"",
+    "delayed_rollup": "sleep 5 && rollup --watch -c rollup.test.config.js",
+    "delayed_karma": "sleep 10 && karma start",
+    "test": "npm run build && karma start --single-run",
+    "test:watch": "concurrently \"npm run build:watch\" \"npm run delayed_karma\""
   },
   "repository": {
     "type": "git",
@@ -60,7 +64,7 @@
     "protractor": "3.0.0",
     "reflect-metadata": "0.1.2",
     "rimraf": "^2.5.4",
-    "rollup": "^0.35.11",
+    "rollup": "^0.36.4",
     "rollup-watch": "^2.5.0",
     "systemjs": "^0.19.16",
     "systemjs-builder": "^0.15.7",
