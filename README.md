@@ -2,6 +2,7 @@
   <h1 align="center">ng-storyblok</h1>
   <p align="center">Full <a href="https://storyblok.com" target="_blank">Storyblok</a> integration for your Angular2 App!</p>
 </p>
+<br>
 <a href="https://travis-ci.org/thomaspink/ng-storyblok">
   <img src="https://api.travis-ci.org/thomaspink/ng-storyblok.svg?branch=master" alt="travis build" height="20">
 </a>
