@@ -8,9 +8,9 @@
     "build:watch": "rm -rf dist && concurrently \"tsc -w\" \"npm run delayed_rollup\"",
     "delayed_rollup": "sleep 5 && rollup --watch -c rollup.test.config.js",
     "delayed_karma": "sleep 10 && karma start",
-    "lint": "./node_modules/tslint/bin/tslint ./src/**/*.ts",
-    "test": "npm run build && karma start --single-run",
-    "test:watch": "concurrently \"npm run build:watch\" \"npm run delayed_karma\""
+    "lint": "./node_modules/tslint/bin/tslint -c tslint.json ./src/**/*.ts",
+    "test": "npm run lint && npm run build && karma start --single-run",
+    "test:watch": "concurrently \"npm run lint\" \"npm run build:watch\" \"npm run delayed_karma\""
   },
   "repository": {
     "type": "git",
