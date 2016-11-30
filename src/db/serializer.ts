@@ -14,10 +14,10 @@ import { SBComponentSchema, SBStorySchema } from './schema';
  * Normally, the store will use the serializer to convert a json or string
  * payload into a normalize form or a higher level structure into a json or
  * string by serializing.
- * 
+ *
  * When creating your own serializer, the minimum set of methods that you should implement is:
  * `normalizeStory`, `normalizeComponent` and `normalizeBlok`.
- * 
+ *
  * @export
  * @abstract
  * @class SBSerializer
@@ -26,40 +26,43 @@ import { SBComponentSchema, SBStorySchema } from './schema';
 export abstract class SBSerializer {
   /**
    * Converts a json or string story payload into the normalized form and creates an SBStory class.
-   * 
+   *
    * @param {(string | SBStorySchema)} payload
    * @returns {SBStory}
-   * 
+   *
    * @memberOf SBSerializer
    */
   abstract normalizeStory(payload: string | SBStorySchema): SBStory;
 
   /**
-   * Converts a json or string component payload into the normalized form and creates an SBComponent class.
-   * 
+   * Converts a json or string component payload into the normalized form
+   * and creates an SBComponent class.
+   *
    * @param {(string | SBComponentSchema)} payload
    * @returns {SBComponent}
-   * 
+   *
    * @memberOf SBSerializer
    */
   abstract normalizeComponent(payload: string | SBComponentSchema): SBComponent;
 
   /**
-   * Converts a json or string blok payload into the normalized form and creates an array of SBComponent classes.
-   * 
+   * Converts a json or string blok payload into the normalized form
+   * and creates an array of SBComponent classes.
+   *
    * @param {(string | SBComponentSchema[])} payload
    * @returns {SBComponent[]}
-   * 
+   *
    * @memberOf SBSerializer
    */
   abstract normalizeBlok(payload: string | SBComponentSchema[]): SBComponent[];
 
   /**
-   * Converts a json or string blok payload into the normalized form and creates an array of SBStory.
-   * 
+   * Converts a json or string blok payload into the normalized form
+   * and creates an array of SBStory.
+   *
    * @param {(string | {}[])} payload
    * @returns {SBStory[]}
-   * 
+   *
    * @memberOf SBSerializer
    */
   abstract normalizeCollection(payload: string | SBStorySchema[]): SBStory[];
@@ -74,7 +77,7 @@ export class SBDefaultSerializer implements SBSerializer {
     const story = data.story || data;
 
     if (!this._isStory(story)) {
-      throw new Error(`Could not normalize story.`)
+      throw new Error(`Could not normalize story.`);
     }
 
     return new SBStory({
@@ -118,7 +121,7 @@ export class SBDefaultSerializer implements SBSerializer {
       _uid: data._uid + '',
       type: data.component + '',
       model: properties
-    })
+    });
   }
 
   /* @override */
@@ -128,7 +131,7 @@ export class SBDefaultSerializer implements SBSerializer {
     if (!this._isBlock(data)) {
       throw new Error(`Could not normalize Blok`);
     }
-    return data.map(c => this.normalizeComponent(c))
+    return data.map(c => this.normalizeComponent(c));
   }
 
   /* @override */
@@ -153,11 +156,13 @@ export class SBDefaultSerializer implements SBSerializer {
 
   /* @internal */
   private _isBlock(payload: SBComponentSchema[]) {
-    return Array.isArray(payload) && payload.filter(c => this._isComponent(c)).length === payload.length;
+    return Array.isArray(payload) &&
+      payload.filter(c => this._isComponent(c)).length === payload.length;
   }
 
   /* @internal */
   private _isCollection(payload: SBStorySchema[]) {
-    return Array.isArray(payload) && payload.filter(c => this._isStory(c)).length === payload.length;
+    return Array.isArray(payload) &&
+      payload.filter(c => this._isStory(c)).length === payload.length;
   }
 }

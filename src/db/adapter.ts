@@ -41,10 +41,12 @@ export abstract class SBAdapter {
 
 /* @internal */
 export class SBBaseAdapter {
-  private _pending: { [key: string]: { resolve: (s: any) => void, reject: (error: any) => void }[] } = {};
+  private _pending: {
+    [key: string]: { resolve: (s: any) => void, reject: (error: any) => void }[] } = {};
 
   /* @internal */
-  protected _addPending(key: string, resolve: (s: any) => void, reject: (error: any) => void = () => undefined) {
+  protected _addPending(key: string, resolve: (s: any) => void,
+      reject: (error: any) => void = () => undefined) {
     if (!Array.isArray(this._pending[key])) {
       this._pending[key] = [{resolve: resolve, reject: reject}];
     } else {
@@ -90,7 +92,8 @@ export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
     else if (typeof slugOrId === 'string')
       options.slug = slugOrId;
     else
-      throw new TypeError(`You have to provide the slug(string) or the id(number) as the first parameter!`);
+      throw new TypeError(
+        `You have to provide the slug(string) or the id(number) as the first parameter!`);
     if (typeof version === 'string')
       options.version = version;
     else if (typeof version !== 'undefined')
@@ -101,7 +104,7 @@ export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
       if (!this._hasPending(key)) {
         this._sdk.get(options).then(
           s => this._resolvePending(key, s),
-          e => this._rejectPending(key, e))
+          e => this._rejectPending(key, e));
       }
       this._addPending(key, resolve, reject);
     });
@@ -109,7 +112,9 @@ export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
 
   /* @override */
   fetchCollection(path: string): Promise<SBStorySchema[]> {
-    throw new Error('`fetchCollection` is not yet supported when using the SBSdkAdapter. Please use the SBHttpAdapter instead.')
+    throw new Error(
+      `fetchCollection' is not yet supported when using the SBSdkAdapter.
+      Please use the SBHttpAdapter instead.`);
   }
 }
 
@@ -123,41 +128,44 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
   /* @override */
   fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
     if (typeof slugOrId !== 'number' && typeof slugOrId !== 'string')
-      throw new TypeError(`You have to provide the slug(string) or the id(number) as the first parameter!`);
+      throw new TypeError(
+        `You have to provide the slug(string) or the id(number) as the first parameter!`);
     if (typeof version !== 'string' && typeof version !== 'undefined')
       throw new TypeError('The version parameter for `fetchStory` has to be a string!');
 
     return new Promise((resolve, reject) => {
       const key = 'story#' + slugOrId;
       if (!this._hasPending(key))
-        this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`).subscribe(
-          response => {
-            const body = response.json();
-            if (body)
-              this._resolvePending(key, body);
-            else
-              this._rejectPending(key, 'Could not load Story. Response body is empty!');
-          }, error => this._rejectPending(key, error));
+        this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`)
+          .subscribe(
+            response => {
+              const body = response.json();
+              if (body)
+                this._resolvePending(key, body);
+              else
+                this._rejectPending(key, 'Could not load Story. Response body is empty!');
+            }, error => this._rejectPending(key, error));
       this._addPending(key, resolve, reject);
     });
   }
 
   /* @override */
   fetchCollection(path: string): Promise<SBStorySchema[]> {
-    if(typeof path !== 'string')
+    if (typeof path !== 'string')
       throw new TypeError(`No valid path provided to fetchCollection method`);
 
     return new Promise((resolve, reject) => {
     const key = 'collection#' + path;
     if (!this._hasPending(key))
-      this._http.get(`${this._host}/stories/?token=${this._config.accessToken}&starts_with=${path}`).subscribe(
-        response => {
-            const body = response.json();
-            if (body && body.stories)
-              this._resolvePending(key, body.stories);
-            else
-              this._rejectPending(key, 'Could not load Collection. Response body is empty!');
-          }, error => this._rejectPending(key, error));
+      this._http.get(`${this._host}/stories/?token=${this._config.accessToken}&starts_with=${path}`)
+        .subscribe(
+          response => {
+              const body = response.json();
+              if (body && body.stories)
+                this._resolvePending(key, body.stories);
+              else
+                this._rejectPending(key, 'Could not load Collection. Response body is empty!');
+            }, error => this._rejectPending(key, error));
       this._addPending(key, resolve, reject);
     });
   }

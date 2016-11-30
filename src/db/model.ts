@@ -70,7 +70,7 @@ export class SBStory {
       "tagList":"${this.tagList}",
       "_editable":"${this.editable}",
       "content": ${this.content.toString()}
-    `
+    `;
   }
 }
 
@@ -99,8 +99,7 @@ export class SBComponent {
     for (var key in this.model) {
       if (this.model.hasOwnProperty(key)) {
         const value = this.model[key];
-        const strValue = '';
-        str += `${sep}${key}:${JSON.stringify(value)}`
+        str += `${sep}${key}:${JSON.stringify(value)}`;
         sep = ',\n';
       }
     }

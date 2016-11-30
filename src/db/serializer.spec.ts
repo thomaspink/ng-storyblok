@@ -1,4 +1,4 @@
-import { SBDefaultSerializer, SBSerializer } from './serializer';
+import { SBDefaultSerializer } from './serializer';
 import { SBComponent, SBStory } from './model';
 
 const serializer = new SBDefaultSerializer();

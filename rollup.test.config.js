@@ -4,7 +4,7 @@ export default {
   entry: 'dist/test-root.js',
   dest: 'dist/bundles/test-root.umd.js',
   format: 'umd',
-  moduleName: 'angularFire2.test',
+  moduleName: 'storyblok.test',
   globals,
   onwarn: function (message) {
     // Suppress this error message... there are hundreds of them. Angular team says to ignore it.

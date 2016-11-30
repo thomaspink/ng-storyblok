@@ -21,13 +21,13 @@ type CollectionObject = { collection: SBStory[]; observers: Observer<SBStory[]>[
  * The SBStore will store, load, fetch and normalize stories.
  * You can use high-level methods for subscribing, loading,
  * finding and peeking stories.
- * 
+ *
  * @export
  * @class SBStore
  */
 @Injectable()
 export abstract class SBStore  {
-  
+
   /**
    * Get an Observable on a story by a given slug or ID. When subscribing
    * or switching it to the "hot" state, the method will lookup the story
@@ -37,11 +37,11 @@ export abstract class SBStore  {
    *
    * For more information on Observables or Observers have a look on RxJS:
    * http://reactivex.io/rxjs/
-   * 
+   *
    * @param {(string | number)} slugOrId
    * @param {string} [version]
    * @returns {Observable<SBStory>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract story(slugOrId: string | number, version?: string): Observable<SBStory>;
@@ -54,11 +54,11 @@ export abstract class SBStore  {
    * present in the store (cache), it will be loaded by the adapters `fetchStory` method.
    * A story is available if it has been fetched earlier.
    *
-   * 
+   *
    * @param {(number | string)} slugOrId
    * @param {string} [version]
    * @returns {Promise<SBStory>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract findStory(slugOrId: number | string, version?: string): Promise<SBStory>;
@@ -66,13 +66,14 @@ export abstract class SBStore  {
   /**
    * Get a story by a given slug or ID without triggering a fetch.
    *
-   * This method will synchronously return the story if it is available in the store, otherwise it will return `undefined`.
+   * This method will synchronously return the story if it is available in the store,
+   * otherwise it will return `undefined`.
    * A story is available if it has been fetched earlier.
-   * 
+   *
    * @param {(number | string)} slugOrId
    * @param {string} [version]
    * @returns {SBStory}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract peekStory(slugOrId: number | string, version?: string): SBStory;
@@ -83,11 +84,11 @@ export abstract class SBStore  {
    *
    * This method will asynchronously fetch the story from the adapter and return a Promise
    * that will be resolved with the story.
-   * 
+   *
    * @param {(number | string)} slugOrId
    * @param {string} [version]
    * @returns {Promise<SBStory>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract loadStory(slugOrId: number | string, version?: string): Promise<SBStory>;
@@ -95,14 +96,14 @@ export abstract class SBStore  {
   /**
    * This method will asynchronously load a story again by calling `fetchStory` on the adapter
    * and update the story in the store.
-   * 
+   *
    * @param {SBStory} story
    * @returns {Promise<SBStory>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract reloadStory(story: SBStory): Promise<SBStory>;
-  
+
   /**
    * Get an Observable on a collection of stories by a given path. When subscribing
    * or switching it to the "hot" state, the method will lookup the collection and
@@ -112,14 +113,14 @@ export abstract class SBStore  {
    *
    * For more information on Observables or Observers have a look on RxJS:
    * http://reactivex.io/rxjs/
-   * 
+   *
    * @param {string} path
    * @returns {Observable<SBStory[]>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract collection(path: string): Observable<SBStory[]>;
-  
+
   /**
    * Get a collection of stories by a path by looking up the story from the store if it is
    * available, otherwise it will trigger a fetch from the server.
@@ -127,38 +128,38 @@ export abstract class SBStore  {
    * This method will asynchronously peek the collection from the store. If the collection is
    * not present in the store (cache), it will be loaded by the adapters `fetchCollection` method.
    * A collection is available if it has been fetched earlier.
-   * 
+   *
    * @param {string} path
    * @returns {Promise<SBStory[]>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract findCollection(path: string): Promise<SBStory[]>;
-  
+
   /**
    * Get a collection of stories by a given path without triggering a fetch.
    *
    * This method will synchronously return the collection if it is available in the store,
    * otherwise it will return `undefined`.
    * A story is available if it has been fetched earlier.
-   * 
+   *
    * @param {string} path
    * @returns {SBStory[]}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract peekCollection(path: string): SBStory[];
-  
+
   /**
    * Get a collection of stories by a given path by triggering a fetch on the adapter
    * and loading it fresh from the server.
    *
    * This method will asynchronously fetch the collection from the adapter and return
    * a Promise that will be resolved with the collection.
-   * 
+   *
    * @param {string} path
    * @returns {Promise<SBStory[]>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract loadCollection(path: string): Promise<SBStory[]>;
@@ -166,10 +167,10 @@ export abstract class SBStore  {
   /**
    * This method will asynchronously reload a collection again by calling `fetchCollection`
    * on the adapter and update the collection in the store.
-   * 
+   *
    * @param {string} path
    * @returns {Promise<SBStory[]>}
-   * 
+   *
    * @memberOf SBStore
    */
   abstract reloadCollection(path: string): Promise<SBStory[]>;
@@ -186,7 +187,7 @@ export class SBDefaultStore implements SBStore {
 
   constructor(private _adapter: SBAdapter, private _serializer: SBSerializer) { }
 
-  /* @override */   
+  /* @override */
   story(slugOrId: string | number, version?: string): Observable<SBStory> {
     return Observable.create((observer: Observer<SBStory>) => {
       this.findStory(slugOrId, version).then(s => {
@@ -196,25 +197,25 @@ export class SBDefaultStore implements SBStore {
     });
   }
 
-  /* @override */ 
+  /* @override */
   findStory(slugOrId: number | string, version?: string): Promise<SBStory> {
     const result = this.peekStory(slugOrId, version);
     if (result)
       return new Promise(resolve => resolve(result));
     else
-      return this.loadStory(slugOrId, version);  
+      return this.loadStory(slugOrId, version);
   }
 
-  /* @override */  
+  /* @override */
   peekStory(slugOrId: number | string, version?: string): SBStory {
     const result = this._peekStoryObject(slugOrId, version);
     return !!result ? result.story : __UNDEFINED__;
   }
 
-  /* @override */  
+  /* @override */
   loadStory(slugOrId: number | string, version?: string): Promise<SBStory> {
     return this._adapter.fetchStory(slugOrId, version).then(s => {
-      const story = this._serializer.normalizeStory(s)
+      const story = this._serializer.normalizeStory(s);
       this._setStoryObject(story, version);
       return story;
     });
@@ -224,7 +225,7 @@ export class SBDefaultStore implements SBStore {
   reloadStory(story: SBStory): Promise<SBStory> {
     return this.loadStory(story.id, this._getVersion(story));
   }
-  
+
   /* @override */
   collection(path: string): Observable<SBStory[]> {
     return Observable.create((observer: Observer<SBStory[]>) => {
@@ -234,16 +235,16 @@ export class SBDefaultStore implements SBStore {
       });
     });
   }
-  
+
   /* @override */
   findCollection(path: string): Promise<SBStory[]> {
     const result = this.peekCollection(path);
     if (result)
       return new Promise(resolve => resolve(result));
     else
-      return this.loadCollection(path); 
+      return this.loadCollection(path);
   }
-  
+
   /* @override */
   peekCollection(path: string): SBStory[] {
     const result = this._peekCollectionObject(path);
@@ -257,7 +258,7 @@ export class SBDefaultStore implements SBStore {
       collection.forEach(story => this._setStoryObject(story));
       this._setCollectionObject(path, collection);
       return collection;
-    })
+    });
   }
   /* @override */
   reloadCollection(path: string): Promise<SBStory[]> {
@@ -265,7 +266,7 @@ export class SBDefaultStore implements SBStore {
   }
 
 
-  /* @internal */  
+  /* @internal */
   private _peekStoryObject(slugOrId: number | string, version?: string): StoryObject {
     let id = typeof slugOrId === 'number' ? slugOrId : __UNDEFINED__;
     let slug = typeof slugOrId === 'string' ? slugOrId : __UNDEFINED__;
@@ -273,7 +274,8 @@ export class SBDefaultStore implements SBStore {
       // Not shure if we should throw an error or parse the ID to a number
       // if it is provided as a string.
       // Code for parsing is commented after the error
-      throw new Error(`You are requesting a story with th ID "${slug}" but it has to be a number not a string`);
+      throw new Error(
+        `You are requesting a story with th ID "${slug}" but it has to be a number not a string`);
       // id = parseInt(slug, 10);
       // slug = __UNDEFINED__;
     }
@@ -281,12 +283,13 @@ export class SBDefaultStore implements SBStore {
        (this._lastPeekedStory.story.id === id || this._lastPeekedStory.story.slug === slug))
       return this._lastPeekedStory;
     this._lastPeekedStory = this._stories.find(s => {
-      return (s.story.id === id || s.story.slug === slug) && !version || (!!version && s.version === version);
+      return (s.story.id === id || s.story.slug === slug) && !version ||
+        (!!version && s.version === version);
     });
     return this._lastPeekedStory || __UNDEFINED__;
   }
 
-  /* @internal */  
+  /* @internal */
   private _setStoryObject(story: SBStory, version?: string) {
     let result = this._peekStoryObject(story.id, version);
     if (result)
@@ -300,20 +303,20 @@ export class SBDefaultStore implements SBStore {
     this._notifyStoryUpdate(story.id);
   }
 
-  /* @internal */  
+  /* @internal */
   private _getVersion(story: SBStory) {
     const res = this._peekStoryObject(story.id);
     return res && res.version;
   }
 
-  /* @internal */  
+  /* @internal */
   private _notifyStoryUpdate(slugOrId: number | string, version?: string) {
     const obj = this._peekStoryObject(slugOrId, version);
     if (obj && obj.observers)
-      obj.observers.forEach(o => o.next(obj.story));  
+      obj.observers.forEach(o => o.next(obj.story));
   }
 
-  /* @internal */   
+  /* @internal */
   private _peekCollectionObject(path: string): CollectionObject {
     return this._collections[path] || __UNDEFINED__;
   }
@@ -321,24 +324,23 @@ export class SBDefaultStore implements SBStore {
   /* @internal */
   private _setCollectionObject(path: string, collection: SBStory[]) {
     if (!Array.isArray(collection))
-      return;  
+      return;
     const result = this._peekCollectionObject(path);
     collection.forEach(s => this._setStoryObject(s));
     if (result)
-      result.collection = collection; 
+      result.collection = collection;
     else
       this._collections[path] = {
         collection: collection,
         observers: []
-      }
+      };
     this._notifyCollectionUpdate(path);
   }
 
-  /* @internal */  
+  /* @internal */
   private _notifyCollectionUpdate(path: string) {
     const obj = this._peekCollectionObject(path);
     if (obj && obj.observers)
       obj.observers.forEach(o => o.next(obj.collection));
   }
-
 }

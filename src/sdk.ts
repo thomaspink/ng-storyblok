@@ -54,17 +54,17 @@ export interface IStoryblok {
   calcPosition();
   setToolTip();
   editElement(e);
-  get(attr: { id?: number; slug?: string; version?: string }, success: (data: {}) => void, error?: (error: string | any) => void);
+  get(attr: { id?: number; slug?: string; version?: string },
+    success: (data: {}) => void, error?: (error: string | any) => void);
   on(event: string, fn: (...args: any[]) => void);
   emit(event: string, ...args: any[]);
-  toArray(list, start: number),
-
+  toArray(list, start: number);
 }
 
 /**
  * Injectable wrapper for the storyblok sdk.
  * Needs the config so it can init storyblok.
- * 
+ *
  * @export
  * @class StoryblokRef
  */
@@ -72,17 +72,20 @@ export interface IStoryblok {
 export class StoryblokRef {
   private _sb: IStoryblok;
 
-  get window():any {
+  get window(): any {
     return window || undefined;
   }
 
   constructor( @Inject(SB_CONFIG) config: SBConfig, @Inject(DOCUMENT) private document: Document) {
     // check if an accessToken is provided
     if (!config.accessToken)
-      throw new Error('No public access token found for storyblok. Please insert one in the config');
+      throw new Error(
+        `No public access token found for storyblok. Please insert one in the config`);
 
     if (!this.window)
-      throw new Error('Storyblok SDK needs window which is not available in this environment.\nAre you using the SDKAdapter or the storyblok SDK on a nodejs server? Use SBHttpAdapter instead!')  
+      throw new Error(`Storyblok SDK needs window which is not available in this environment.
+        Are you using the SDKAdapter or the storyblok SDK on a nodejs server?
+        Use SBHttpAdapter instead!`);
 
     // check if storyblok sdk is available
     if (!this.window.storyblok)
@@ -109,12 +112,14 @@ export class StoryblokRef {
 
   get(attr: { id?: number; slug?: string; version?: string }) {
     if (typeof attr !== 'object')
-      throw new TypeError('You have to provide an attributes object to the `get` method. The object should at least consist of an `id` or a `slug`');
+      throw new TypeError(`You have to provide an attributes object to the 'get' method.
+        The object should at least consist of an 'id' or a 'slug'`);
     if (typeof attr.id === 'undefined' && typeof attr.slug === 'undefined')
       throw new TypeError('Id or slug has to be set in the attributes object!');
     if (!this.isInitialized)
-      throw new Error('Can not load a story, because the storyblok in not yet initialized or loaded!');
-    
+      throw new Error(
+        `Can not load a story, because the storyblok in not yet initialized or loaded!`);
+
     // TODO: Rework if storyblok sdk is fixed
     if (attr.id) {
       attr.slug = attr.id + '';

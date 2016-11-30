@@ -21,7 +21,7 @@ module.exports = function(config) {
 
       'node_modules/rxjs/bundles/Rx.{js,map}',
 
-      ...getAngularFiles(['core','common','compiler','platform-browser','platform-browser-dynamic']),
+      ...getAngularFiles(['core','common','compiler','http','platform-browser','platform-browser-dynamic']),
 
       'karma-test-shim.js',
       'dist/bundles/test-root.umd.{js,map}',

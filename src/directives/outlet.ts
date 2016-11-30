@@ -19,7 +19,7 @@ import { SB_CONFIG, SBConfig } from '../config';
 /**
  * The SBOutlet Directive acts as a placeholder for
  * dynamically creating components based on a provided list.
- * 
+ *
  * @export
  * @class SBOutlet
  * @implements {OnChanges}
@@ -45,7 +45,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
   /* @internal */
   ngOnDestroy() { this.deactivate(); }
 
-  /* @internal */  
+  /* @internal */
   ngOnChanges() {
     if (!Array.isArray(this._model)) {
       throw new Error(`You have to provide the component schemas as an array to the sb-outlet`);
@@ -62,13 +62,13 @@ export class SBOutlet implements OnChanges, OnDestroy {
 
   /**
    * Activates, creates and renders components after the sb-outlet element.
-   * 
+   *
    * @param {SBComponent[]} schemas
    * @param {ComponentFactoryResolver} loadedResolver
    * @param {Injector} loadedInjector
    * @param {ResolvedReflectiveProvider[]} providers
    * @returns {ComponentRef<any>[]}
-   * 
+   *
    * @memberOf SBOutlet
    */
   activate(schemas: SBComponent[], loadedResolver: ComponentFactoryResolver,
@@ -89,11 +89,14 @@ export class SBOutlet implements OnChanges, OnDestroy {
     loadedInjector: Injector, providers: ResolvedReflectiveProvider[]): ComponentRef<C> {
 
     if (!this.config.map) {
-      throw new Error(`Cannot activate component in sb-outlet if no map is provided in the config.`);
+      throw new Error(
+        `Cannot activate component in sb-outlet if no map is provided in the config.`);
     }
     const componentType = this.config.map[schema.type];
     if (!componentType) {
-      throw new Error(`Cannot activate component because the map in the config has no entry for "${schema.type}".`);
+      throw new Error(
+        `Cannot activate component because the map in the config` +
+        `has no entry for "${schema.type}".`);
     }
 
     let factory: ComponentFactory<any>;
@@ -107,7 +110,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
     const inj = ReflectiveInjector.fromResolvedProviders(providers, injector);
     const ref = this.location.createComponent(factory, this.location.length, inj, []);
 
-    const changes = {};    
+    const changes = {};
     for (let key in schema.model) {
       const value = schema.model[key];
       if (schema.model.hasOwnProperty(key) && value !== ref.instance[key]) {
@@ -126,13 +129,13 @@ export class SBOutlet implements OnChanges, OnDestroy {
 
   /**
    * Deactivates and destroys all active components.
-   * 
+   *
    * @memberOf SBOutlet
    */
   deactivate() {
     if (this.activated) {
       const cnts = this.components;
-      this.activated.forEach(c => { c.destroy() });
+      this.activated.forEach(c => { c.destroy(); });
       this.activated = null;
       this.deactivateEvents.emit(cnts);
     }

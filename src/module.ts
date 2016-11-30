@@ -12,7 +12,7 @@ import { SBConfig, SB_CONFIG } from './config';
 import { SBSerializer, SBDefaultSerializer } from './db/serializer';
 import { SBAdapter, SBHttpAdapter } from './db/adapter';
 import { SBStore, SBDefaultStore } from './db/store';
-import { StoryblokRef, STORYBLOK } from './sdk'
+import { StoryblokRef, STORYBLOK } from './sdk';
 
 export const SB_PROVIDERS: Provider[] = [
   StoryblokRef,
@@ -24,7 +24,7 @@ export const SB_PROVIDERS: Provider[] = [
 
 /**
  * Provides Storyblok Services and Directives
- * 
+ *
  * @export
  * @class SbModule
  */
@@ -43,6 +43,6 @@ export class SbModule {
         SB_PROVIDERS,
         { provide: SB_CONFIG, useValue: config },
       ]
-    }
+    };
   }
 }
