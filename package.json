@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "rm -rf dist && tsc && rollup -c rollup.test.config.js",
-    "build:watch": "rm -rf dist && concurrently \"tsc -w\" \"npm run delayed_rollup\"",
+    "build": "rm -rf dist && ./node_modules/typescript/bin/tsc -p tsconfig.json && rollup -c rollup.test.config.js",
+    "build:watch": "rm -rf dist && concurrently \"./node_modules/typescript/bin/tsc -p tsconfig.json -w\" \"npm run delayed_rollup\"",
     "delayed_rollup": "sleep 5 && rollup --watch -c rollup.test.config.js",
     "delayed_karma": "sleep 10 && karma start",
     "lint": "./node_modules/tslint/bin/tslint -c tslint.json ./src/**/*.ts",
