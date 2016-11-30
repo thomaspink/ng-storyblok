@@ -28,3 +28,9 @@ before_script:
 script:
   - npm run build
   - ./node_modules/.bin/karma start --single-run --browsers Firefox --reporters mocha
+
+notifications:
+  webhooks:
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: false     # default: false
