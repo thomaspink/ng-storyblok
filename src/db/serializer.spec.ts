@@ -27,15 +27,15 @@ const storyPayloay1 = `{
 }`;
 const storyPayloay2 = `{"story": ${storyPayloay1}}`;
 const componentPayload = `{
-    "_uid": "2c9ade1f-b6f2-4257-8227-17fef2749216",
-    "text": "some text",
-    "headline": "some text",
-    "component": "intro"
-  }`;
+  "_uid": "2c9ade1f-b6f2-4257-8227-17fef2749216",
+  "text": "some text",
+  "headline": "some text",
+  "component": "intro"
+}`;
 
 describe('SBDefaultSerializer', () => {
 
-  describe('constructor', () => {
+  describe('Constructor', () => {
     it('does implement SBSerializer', () => {
       expect(typeof serializer.normalizeStory).toBe('function');
       expect(typeof serializer.normalizeComponent).toBe('function');
