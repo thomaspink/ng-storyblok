@@ -6,4 +6,5 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
+export * from './db/model.spec';
 export * from './db/serializer.spec';
