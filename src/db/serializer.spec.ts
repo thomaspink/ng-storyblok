@@ -88,8 +88,48 @@ describe('SBDefaultSerializer', () => {
     });
     it('should throw an error if payload is not a valid component', () => {
       expect(() => serializer.normalizeComponent('{}')).toThrow();
-      // expect(() => serializer.normalizeComponent('{"_uid": "a"}')).toThrow();
-      // expect(() => serializer.normalizeComponent('{"component":"intro"}')).toThrow();
+      expect(() => serializer.normalizeComponent('{"_uid": "a"}')).toThrow();
+      expect(() => serializer.normalizeComponent('{"component":"intro"}')).toThrow();
+    });
+  });
+
+  describe('normalizeBlok', () => {
+    it(' should normalize a blok from string payload ', () => {
+      const result = serializer.normalizeBlok(`[${componentPayload}]`);
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0] instanceof SBComponent).toBeTruthy();
+      expect(result[0]._uid).toBe('2c9ade1f-b6f2-4257-8227-17fef2749216');
+    });
+    it('should normalize a blok from object payload ', () => {
+      const result = serializer.normalizeBlok(JSON.parse(`[${componentPayload}]`));
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0] instanceof SBComponent).toBeTruthy();
+      expect(result[0]._uid).toBe('2c9ade1f-b6f2-4257-8227-17fef2749216');
+    });
+    it('should throw an error if payload is not a valid blok', () => {
+      expect(() => serializer.normalizeBlok('{}')).toThrow();
+    });
+  });
+
+  describe('normalizeCollection', () => {
+    it(' should normalize a collection from string payload ', () => {
+      const result = serializer.normalizeCollection(`[${storyPayloay1}]`);
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0] instanceof SBStory).toBeTruthy();
+      expect(result[0].id).toBe(41107);
+    });
+    it('should normalize a collection from object payload ', () => {
+      const result = serializer.normalizeCollection(JSON.parse(`[${storyPayloay1}]`));
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0] instanceof SBStory).toBeTruthy();
+      expect(result[0].id).toBe(41107);
+    });
+    it('should throw an error if payload is not a valid blok', () => {
+      expect(() => serializer.normalizeCollection('{}')).toThrow();
     });
   });
 
