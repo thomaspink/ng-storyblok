@@ -77,7 +77,8 @@ export class SBDefaultSerializer implements SBSerializer {
     const story = data.story || data;
 
     if (!this._isStory(story)) {
-      throw new Error(`Could not normalize story.`);
+      throw new Error(`Could not normalize story.
+        The provided payload does not math the story schema.`);
     }
 
     return new SBStory({
@@ -99,10 +100,10 @@ export class SBDefaultSerializer implements SBSerializer {
   /* @override */
   normalizeComponent(payload: string | SBComponentSchema): SBComponent {
     const data: any = typeof payload === 'string' ? JSON.parse(payload) : payload;
-    if (!this._isComponent) {
-      throw new Error('Could not normalize storyblok component');
+    if (!this._isComponent(data)) {
+      throw new Error(`Could not normalize storyblok component.
+        The provided payload does not math the component schema.`);
     }
-
     const properties = {};
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
@@ -129,7 +130,8 @@ export class SBDefaultSerializer implements SBSerializer {
     const data: SBComponentSchema[]
       = typeof payload === 'string' ? JSON.parse(payload) : payload;
     if (!this._isBlock(data)) {
-      throw new Error(`Could not normalize Blok`);
+      throw new Error(`Could not normalize Blok.
+        The provided payload does not math the story block.`);
     }
     return data.map(c => this.normalizeComponent(c));
   }
@@ -138,14 +140,17 @@ export class SBDefaultSerializer implements SBSerializer {
   normalizeCollection(payload: string | SBStorySchema[]) {
     const data: SBStorySchema[] = typeof payload === 'string' ? JSON.parse(payload) : payload;
     if (!this._isCollection(data)) {
-      throw new Error(`Could not normalize Collection`);
+      throw new Error(`Could not normalize Collection.
+        The provided payload does not math the collection schema.`);
     }
     return data.map(s => this.normalizeStory(s));
   }
 
   /* @internal */
   private _isStory(payload: SBStorySchema) {
-    return typeof payload.id === 'number';
+    return typeof payload.id === 'number' && typeof payload.name === 'string' &&
+      !!payload.name.length && typeof payload.slug === 'string' && !!payload.slug.length &&
+      this._isComponent(payload.content);
   }
 
   /* @internal */
