@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "build": "rm -rf dist && ./node_modules/typescript/bin/tsc -p tsconfig.json && rollup -c rollup.test.config.js",
-    "build:watch": "rm -rf dist && concurrently \"./node_modules/typescript/bin/tsc -p tsconfig.json -w\" \"npm run delayed_rollup\"",
+    "build": "npm run clean && ./node_modules/typescript/bin/tsc -p tsconfig.json && rollup -c rollup.test.config.js",
+    "build:watch": "npm run clean && concurrently \"./node_modules/typescript/bin/tsc -p tsconfig.json -w\" \"npm run delayed_rollup\"",
     "delayed_rollup": "sleep 5 && rollup --watch -c rollup.test.config.js",
     "delayed_karma": "sleep 10 && ./node_modules/.bin/karma start",
     "lint": "./node_modules/tslint/bin/tslint -c tslint.json ./src/**/*.ts",
     "test": "npm run lint && npm run build && ./node_modules/.bin/karma start --single-run && npm run clean",
     "test:watch": "concurrently \"npm run lint\" \"npm run build:watch\" \"npm run delayed_karma\"",
-    "clean": "rm -rf ./dist"
+    "clean": "rm -rf dist"
   },
   "repository": {
     "type": "git",
