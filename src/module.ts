@@ -7,6 +7,7 @@
  */
 
 import { NgModule, ModuleWithProviders, Provider } from '@angular/core';
+import { HttpModule } from '@angular/http';
 import { SBOutlet } from './directives/outlet';
 import { SBConfig, SB_CONFIG } from './config';
 import { SBSerializer, SBDefaultSerializer } from './db/serializer';
@@ -29,6 +30,7 @@ export const SB_PROVIDERS: Provider[] = [
  * @class SbModule
  */
 @NgModule({
+  imports: [HttpModule],
   declarations: [SBOutlet],
   exports: [SBOutlet],
 })
