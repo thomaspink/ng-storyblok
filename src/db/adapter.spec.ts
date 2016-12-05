@@ -7,14 +7,19 @@
  */
 
 import { TestBed, inject } from '@angular/core/testing';
+import { HttpModule } from '@angular/http';
+import { SBModule } from '../module';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 
-describe('SBDefaultSerializer', () => {
+describe('SBHttpAdapter', () => {
   var adapter: SBAdapter;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: SBAdapter, useClass: SBHttpAdapter }]
+      imports: [SBModule.forRoot({accessToken: 'token'})],
+      providers: [
+        { provide: SBAdapter, useClass: SBHttpAdapter }
+      ]
     });
 
     inject([SBAdapter], (_adapter: SBAdapter) => {
@@ -22,7 +27,7 @@ describe('SBDefaultSerializer', () => {
     })();
   });
 
-  it('should be injectable by the token SBSerializer', () => {
+  it('should be injectable by the token SBAdapter', () => {
     expect(adapter instanceof SBHttpAdapter).toBeTruthy();
   });
 
