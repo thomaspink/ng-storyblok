@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
-import { SBDefaultSerializer } from './serializer';
+import { TestBed, inject } from '@angular/core/testing';
+import { SBDefaultSerializer, SBSerializer } from './serializer';
 import { SBComponent, SBStory } from './model';
 
-const serializer = new SBDefaultSerializer();
 const storyPayloay1 = `{
   "name": "Home",
   "created_at": "2016-11-01T14:15:58.201Z",
@@ -33,15 +33,29 @@ const componentPayload = `{
   "component": "intro"
 }`;
 
-describe('SBDefaultSerializer', () => {
 
-  describe('Constructor', () => {
-    it('does implement SBSerializer', () => {
-      expect(typeof serializer.normalizeStory).toBe('function');
-      expect(typeof serializer.normalizeComponent).toBe('function');
-      expect(typeof serializer.normalizeBlok).toBe('function');
-      expect(typeof serializer.normalizeCollection).toBe('function');
+describe('SBDefaultSerializer', () => {
+  var serializer: SBSerializer;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers:  [{ provide: SBSerializer, useClass: SBDefaultSerializer }]
     });
+
+    inject([SBSerializer], (_serializer: SBSerializer) => {
+      serializer = _serializer;
+    })();
+  });
+
+  it('should be injectable by the token SBSerializer', () => {
+    expect(serializer instanceof SBDefaultSerializer).toBeTruthy();
+  });
+
+  it('does implement SBSerializer', () => {
+    expect(typeof serializer.normalizeStory).toBe('function');
+    expect(typeof serializer.normalizeComponent).toBe('function');
+    expect(typeof serializer.normalizeBlok).toBe('function');
+    expect(typeof serializer.normalizeCollection).toBe('function');
   });
 
   describe('normalizeStory', () => {

@@ -9,7 +9,6 @@
 import { OpaqueToken } from '@angular/core';
 import { Injectable, Inject } from '@angular/core';
 import { SB_CONFIG, SBConfig } from './config';
-import { DOCUMENT,  } from '@angular/platform-browser';
 
 export interface IStoryblokConfig {
   accessToken: string;
@@ -76,7 +75,7 @@ export class StoryblokRef {
     return window || undefined;
   }
 
-  constructor( @Inject(SB_CONFIG) config: SBConfig, @Inject(DOCUMENT) private document: Document) {
+  constructor( @Inject(SB_CONFIG) config: SBConfig) {
     // check if an accessToken is provided
     if (!config.accessToken)
       throw new Error(

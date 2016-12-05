@@ -8,4 +8,5 @@ export default (mod) => {
   if (mod === 'firebase') return 'firebase';
   if (mod === '@angular/core') return 'ng.core';
   if (mod === '@angular/core/testing') return 'ng.core.testing';
+  if (mod === '@angular/http') return 'ng.http';
 }
