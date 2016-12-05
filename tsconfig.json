@@ -19,6 +19,7 @@
     "moduleResolution": "node"
   },
   "files": [
+    "src/index.ts",
     "src/test-root.ts",
     "node_modules/zone.js/dist/zone.js.d.ts"
   ],
