@@ -53,6 +53,8 @@ describe('SBHttpAdapter', () => {
     TestBed.configureTestingModule({
       imports: [SBModule.forRoot({ accessToken: 'token' })],
       providers: [
+        // Provided SBHttpAdapter so we are not depending on the adapter
+        // the module provides and we can be sure it is the right one
         { provide: SBAdapter, useClass: SBHttpAdapter },
         { provide: Http, useClass: HttpMock }
       ]

@@ -21,6 +21,10 @@ describe('SBHttpAdapter', () => {
     TestBed.configureTestingModule({
       imports: [SBModule.forRoot({ accessToken: 'token' })],
       providers: [
+        // Provided SBHttpAdapter and SBDefaultSerializer again,
+        // so we are not depending on the adapter and serializer
+        // the module provides and we can be sure they are the
+        // right ones (default and http)
         { provide: SBAdapter, useClass: SBHttpAdapter },
         { provide: SBSerializer, useClass: SBDefaultSerializer },
         { provide: Http, useClass: HttpMock }
