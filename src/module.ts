@@ -43,7 +43,8 @@ export class SBModule {
       ngModule: SBModule,
       providers: [
         SB_PROVIDERS,
-        { provide: SB_CONFIG, useValue: config },
+        { provide: SBConfig, useValue: config},
+        { provide: SB_CONFIG, useExisting: SBConfig }
       ]
     };
   }
