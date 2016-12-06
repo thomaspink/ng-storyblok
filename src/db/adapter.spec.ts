@@ -30,8 +30,8 @@ export const storyPayload = {
   }
 };
 export const collectionPayload = { stories: [storyPayload.story] };
-var requestCount = 0;
 
+var requestCount = 0;
 export class HttpMock {
   get(url: string, options?: RequestOptionsArgs): Observable<Response> {
     requestCount++;
@@ -75,14 +75,14 @@ describe('SBHttpAdapter', () => {
   });
 
   describe('.fetchStory', () => {
-    it('should fetch a story payload', (done) => {
+    it('should fetch a story', (done) => {
       adapter.fetchStory('story').then(v => {
         expect(v).toBe(storyPayload);
         done();
       });
     });
 
-    it('should fetch once when multiple calls happen', () => {
+    it('should fetch only once when multiple calls are pending at the same time', () => {
       requestCount = 0;
       adapter.fetchStory('story');
       adapter.fetchStory('story');
@@ -91,14 +91,14 @@ describe('SBHttpAdapter', () => {
   });
 
   describe('.fetchCollection', () => {
-    it('should fetch a collection payload', (done) => {
+    it('should fetch a collection of stories', (done) => {
       adapter.fetchCollection('collection').then(c => {
         expect(c).toBe(collectionPayload.stories);
         done();
       });
     });
 
-    it('should fetch once when multiple calls happen', () => {
+    it('should fetch only once when multiple calls are pending at the same time', () => {
       requestCount = 0;
       adapter.fetchCollection('collection');
       adapter.fetchCollection('collection');
