@@ -12,7 +12,7 @@ import { Observable } from 'rxjs/Observable';
 import { SBModule } from '../module';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 
-const storyPayload = {
+export const storyPayload = {
   story: {
     name: 'Home',
     created_at: '2016-11-01T14:15:58.201Z',
@@ -29,7 +29,7 @@ const storyPayload = {
     tag_list: []
   }
 };
-const collectionPayload = { stories: [storyPayload.story] };
+export const collectionPayload = { stories: [storyPayload.story] };
 var requestCount = 0;
 
 export class HttpMock {

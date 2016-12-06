@@ -9,22 +9,9 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { SBDefaultSerializer, SBSerializer } from './serializer';
 import { SBComponent, SBStory } from './model';
+import { storyPayload } from './adapter.spec';
 
-const storyPayloay1 = `{
-  "name": "Home",
-  "created_at": "2016-11-01T14:15:58.201Z",
-  "published_at": "2016-11-16T14:18:24.589Z",
-  "alternates": [],
-  "id": 41107,
-  "content": {
-    "_uid": "6fecdd7e-7734-4bb4-a639-5ccbc5eebc68",
-    "component": "root"
-  },
-  "slug": "home",
-  "full_slug": "home",
-  "sort_by_date": null,
-  "tag_list": []
-}`;
+const storyPayloay1 = JSON.stringify(storyPayload.story);
 const storyPayloay2 = `{"story": ${storyPayloay1}}`;
 const componentPayload = `{
   "_uid": "2c9ade1f-b6f2-4257-8227-17fef2749216",
