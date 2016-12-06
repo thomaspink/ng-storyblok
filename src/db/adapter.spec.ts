@@ -72,7 +72,7 @@ describe('SBHttpAdapter', () => {
     expect(typeof adapter.fetchCollection).toBe('function');
   });
 
-  describe('fetchStory', () => {
+  describe('.fetchStory', () => {
     it('should fetch a story payload', (done) => {
       adapter.fetchStory('story').then(v => {
         expect(v).toBe(storyPayload);
@@ -88,7 +88,7 @@ describe('SBHttpAdapter', () => {
     });
   });
 
-  describe('fetchCollection', () => {
+  describe('.fetchCollection', () => {
     it('should fetch a collection payload', (done) => {
       adapter.fetchCollection('collection').then(c => {
         expect(c).toBe(collectionPayload.stories);

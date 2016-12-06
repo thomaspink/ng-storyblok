@@ -45,7 +45,7 @@ describe('SBDefaultSerializer', () => {
     expect(typeof serializer.normalizeCollection).toBe('function');
   });
 
-  describe('normalizeStory', () => {
+  describe('.normalizeStory', () => {
     it(' should normalize a story from string payload ', () => {
       const result1 = serializer.normalizeStory(storyPayloay1);
       const result2 = serializer.normalizeStory(storyPayloay2);
@@ -70,7 +70,7 @@ describe('SBDefaultSerializer', () => {
     });
   });
 
-  describe('normalizeComponent', () => {
+  describe('.normalizeComponent', () => {
     it(' should normalize a component from string payload ', () => {
       const result = serializer.normalizeComponent(componentPayload);
       expect(result instanceof SBComponent).toBeTruthy();
@@ -94,7 +94,7 @@ describe('SBDefaultSerializer', () => {
     });
   });
 
-  describe('normalizeBlok', () => {
+  describe('.normalizeBlok', () => {
     it(' should normalize a blok from string payload ', () => {
       const result = serializer.normalizeBlok(`[${componentPayload}]`);
       expect(Array.isArray(result)).toBeTruthy();
@@ -114,7 +114,7 @@ describe('SBDefaultSerializer', () => {
     });
   });
 
-  describe('normalizeCollection', () => {
+  describe('.normalizeCollection', () => {
     it(' should normalize a collection from string payload ', () => {
       const result = serializer.normalizeCollection(`[${storyPayloay1}]`);
       expect(Array.isArray(result)).toBeTruthy();
