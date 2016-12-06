@@ -9,3 +9,4 @@
 export * from './db/model.spec';
 export * from './db/serializer.spec';
 export * from './db/adapter.spec';
+export * from './db/store.spec';
