@@ -48,4 +48,15 @@ describe('SBHttpAdapter', () => {
     expect(typeof store.findCollection).toBe('function');
     expect(typeof store.reloadCollection).toBe('function');
   });
+
+  describe('.story', () => { });
+  describe('.loadStory', () => { });
+  describe('.peekStory', () => { });
+  describe('.findStory', () => { });
+  describe('.reloadStory', () => { });
+  describe('.collection', () => { });
+  describe('.loadCollection', () => { });
+  describe('.peekCollection', () => { });
+  describe('.findCollection', () => { });
+  describe('.reloadCollection', () => {});
 });
