@@ -41,9 +41,11 @@ describe('SBHttpAdapter', () => {
     expect(typeof store.loadStory).toBe('function');
     expect(typeof store.peekStory).toBe('function');
     expect(typeof store.findStory).toBe('function');
+    expect(typeof store.reloadStory).toBe('function');
     expect(typeof store.collection).toBe('function');
-    expect(typeof store.reloadCollection).toBe('function');
+    expect(typeof store.loadCollection).toBe('function');
     expect(typeof store.peekCollection).toBe('function');
     expect(typeof store.findCollection).toBe('function');
+    expect(typeof store.reloadCollection).toBe('function');
   });
 });
