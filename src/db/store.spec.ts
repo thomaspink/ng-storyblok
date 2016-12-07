@@ -8,10 +8,12 @@
 
 import { TestBed, inject } from '@angular/core/testing';
 import { Http } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 import { SBModule } from '../module';
 import { SBStore, SBDefaultStore } from './store';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 import { SBSerializer, SBDefaultSerializer } from './serializer';
+import { SBStory } from './model';
 import { HttpMock } from './adapter.spec';
 
 describe('SBHttpAdapter', () => {
@@ -53,7 +55,27 @@ describe('SBHttpAdapter', () => {
     expect(typeof store.reloadCollection).toBe('function');
   });
 
-  describe('.story', () => { });
+  describe('.story', () => {
+    it('should return an observable', () => {
+      expect(store.story('home') instanceof Observable).toBeTruthy();
+    });
+
+    it('should be subscribable and resolve a story', (done) => {
+      store.story('home').subscribe(s => {
+        expect(s instanceof SBStory).toBeTruthy();
+        done();
+      });
+    });
+    it('should call the error callback when thrown', (done) => {
+      store.story('wrong').subscribe(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(!!error).toBeTruthy();
+        done();
+      });
+    });
+  });
   describe('.loadStory', () => { });
   describe('.peekStory', () => { });
   describe('.findStory', () => { });
