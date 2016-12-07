@@ -192,7 +192,17 @@ export class SBDefaultStore implements SBStore {
     return Observable.create((observer: Observer<SBStory>) => {
       this.findStory(slugOrId, version).then(s => {
         this._peekStoryObject(slugOrId, version).observers.push(observer);
-        this._notifyStoryUpdate(s.id);
+        this._notifyStoryUpdate(slugOrId);
+      }).catch(reason => {
+        // not sure if we should call error callback on all
+        // stored observers for that story or just ignore them
+        this._notifyStoryError(slugOrId, reason, version);
+
+        // call error callback on the provided observer if we
+        // catch an error. Also call complete and don't store
+        // the latest observer which causes the error
+        observer.error(reason);
+        observer.complete();
       });
     });
   }
@@ -216,6 +226,9 @@ export class SBDefaultStore implements SBStore {
   loadStory(slugOrId: number | string, version?: string): Promise<SBStory> {
     return this._adapter.fetchStory(slugOrId, version).then(s => {
       const story = this._serializer.normalizeStory(s);
+      if (slugOrId !== story.id && slugOrId !== story.slug)
+        throw new Error(`The id or slug "${slugOrId}" provided for loading a story` +
+          `does not match the ones (id: ${story.id}, slug: "${story.slug}") in the loaded payload`);
       this._setStoryObject(story, version);
       return story;
     });
@@ -314,6 +327,13 @@ export class SBDefaultStore implements SBStore {
     const obj = this._peekStoryObject(slugOrId, version);
     if (obj && obj.observers)
       obj.observers.forEach(o => o.next(obj.story));
+  }
+
+  /* @internal */
+  private _notifyStoryError(slugOrId: number | string, error: any, version?: string) {
+    const obj = this._peekStoryObject(slugOrId, version);
+    if (obj && obj.observers)
+      obj.observers.forEach(o => o.error(error));
   }
 
   /* @internal */
