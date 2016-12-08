@@ -66,6 +66,7 @@ describe('SBHttpAdapter', () => {
         done();
       });
     });
+
     it('should call the error callback when thrown', (done) => {
       store.story('wrong').subscribe(s => {
         expect(false).toBeTruthy();
@@ -80,7 +81,30 @@ describe('SBHttpAdapter', () => {
   describe('.peekStory', () => { });
   describe('.findStory', () => { });
   describe('.reloadStory', () => { });
-  describe('.collection', () => { });
+  describe('.collection', () => {
+    it('should return an observable', () => {
+      expect(store.collection('collection') instanceof Observable).toBeTruthy();
+    });
+
+    it('should be subscribable and resolve a collection of story', (done) => {
+      store.collection('collection').subscribe(c => {
+        expect(Array.isArray(c)).toBeTruthy();
+        expect(c.length).toBe(1);
+        expect(c[0] instanceof SBStory).toBeTruthy();
+        done();
+      });
+    });
+
+    // it('should call the error callback when thrown', (done) => {
+    //   store.collection('wrong').subscribe(s => {
+    //     expect(false).toBeTruthy();
+    //     done();
+    //   }, error => {
+    //     expect(!!error).toBeTruthy();
+    //     done();
+    //   });
+    // });
+  });
   describe('.loadCollection', () => { });
   describe('.peekCollection', () => { });
   describe('.findCollection', () => { });
