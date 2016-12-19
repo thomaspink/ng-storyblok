@@ -50,8 +50,14 @@ describe('SBHttpAdapter', () => {
   var adapter: SBAdapter;
 
   beforeEach(() => {
+
+    function storyblockConfigFactory() {
+      return {
+        accessToken: 'token'
+      };
+    }
     TestBed.configureTestingModule({
-      imports: [SBModule.forRoot({ accessToken: 'token' })],
+      imports: [SBModule.forRoot(storyblockConfigFactory)],
       providers: [
         // Provided SBHttpAdapter so we are not depending on the adapter
         // the module provides and we can be sure it is the right one

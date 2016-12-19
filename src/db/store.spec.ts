@@ -20,8 +20,17 @@ describe('SBHttpAdapter', () => {
   var store: SBStore;
 
   beforeEach(() => {
+    function storyblockConfigFactory() {
+      return {
+        accessToken: 'token'
+      };
+    }
     TestBed.configureTestingModule({
-      imports: [SBModule.forRoot({ accessToken: 'token' })],
+      imports: [SBModule.forRoot(function storyblockConfigFactory() {
+      return {
+        accessToken: 'token'
+      };
+    })],
       providers: [
         // Provided SBHttpAdapter and SBDefaultSerializer again,
         // so we are not depending on the adapter and serializer

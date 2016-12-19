@@ -33,14 +33,11 @@ export const SB_PROVIDERS: Provider[] = [
   exports: [SBOutlet],
 })
 export class SBModule {
-  static forRoot(config: SBConfig): ModuleWithProviders {
-    if (typeof config.accessToken !== 'string' || !config.accessToken.length)
-      throw new TypeError('Access Token is not provided in the config!');
-
+  static forRoot(configFactory: () => SBConfig): ModuleWithProviders {
     return {
       ngModule: SBModule,
       providers: [
-        { provide: SBConfig, useValue: config},
+        { provide: SBConfig, useFactory: configFactory},
       ]
     };
   }

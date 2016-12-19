@@ -17,3 +17,27 @@ export abstract class SBConfig {
     [key: string]: Type<any>
   };
 }
+
+// export class SBConfig {
+//   accessToken: string;
+//   space: string;
+//   endPoint: string;
+//   type: 'full' | 'widget';
+//   map: { [key: string]: Type<any> };
+
+//   constructor({accessToken, space, endPoint, type, map}: {
+//     accessToken: string;
+//     space?: string;
+//     endPoint?: string;
+//     type?: 'full' | 'widget';
+//     map?: {
+//       [key: string]: Type<any>
+//     }
+//   }) {
+//     this.accessToken = accessToken;
+//     this.space = space;
+//     this.endPoint = endPoint;
+//     this.type = type || 'full';
+//     this.map = map;
+//   }
+// }
