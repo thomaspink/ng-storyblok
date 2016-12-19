@@ -7,9 +7,8 @@
  */
 
 import { Type, OpaqueToken } from '@angular/core';
-import { IStoryblokConfig } from './sdk';
 
-export abstract class SBConfig implements IStoryblokConfig {
+export abstract class SBConfig {
   accessToken: string;
   space?: string;
   endPoint?: string;
@@ -18,5 +17,3 @@ export abstract class SBConfig implements IStoryblokConfig {
     [key: string]: Type<any>
   };
 }
-
-export const SB_CONFIG = new OpaqueToken('SB_CONFIG');

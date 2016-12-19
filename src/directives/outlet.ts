@@ -14,7 +14,7 @@ import {
 import { SBComponent } from '../db/model';
 import { SBSerializer } from '../db/serializer';
 import { SBComponentSchema } from '../db/schema';
-import { SB_CONFIG, SBConfig } from '../config';
+import { SBConfig } from '../config';
 
 /**
  * The SBOutlet Directive acts as a placeholder for
@@ -40,7 +40,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
   }
 
   constructor(private resolver: ComponentFactoryResolver, private location: ViewContainerRef,
-    private _serializer: SBSerializer, @Inject(SB_CONFIG) private config: SBConfig) { }
+    private _serializer: SBSerializer, private config: SBConfig) { }
 
   /* @internal */
   ngOnDestroy() { this.deactivate(); }

@@ -9,15 +9,12 @@
 import { NgModule, ModuleWithProviders, Provider } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { SBOutlet } from './directives/outlet';
-import { SBConfig, SB_CONFIG } from './config';
+import { SBConfig } from './config';
 import { SBSerializer, SBDefaultSerializer } from './db/serializer';
 import { SBAdapter, SBHttpAdapter } from './db/adapter';
 import { SBStore, SBDefaultStore } from './db/store';
-import { StoryblokRef, STORYBLOK } from './sdk';
 
 export const SB_PROVIDERS: Provider[] = [
-  StoryblokRef,
-  { provide: STORYBLOK, useExisting: StoryblokRef },
   { provide: SBAdapter, useClass: SBHttpAdapter },
   { provide: SBSerializer, useClass: SBDefaultSerializer },
   { provide: SBStore, useClass: SBDefaultStore }
@@ -31,6 +28,7 @@ export const SB_PROVIDERS: Provider[] = [
  */
 @NgModule({
   imports: [HttpModule],
+  providers: SB_PROVIDERS,
   declarations: [SBOutlet],
   exports: [SBOutlet],
 })
@@ -42,9 +40,7 @@ export class SBModule {
     return {
       ngModule: SBModule,
       providers: [
-        SB_PROVIDERS,
         { provide: SBConfig, useValue: config},
-        { provide: SB_CONFIG, useExisting: SBConfig }
       ]
     };
   }

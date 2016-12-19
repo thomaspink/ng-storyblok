@@ -6,11 +6,10 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
-import { StoryblokRef } from '../sdk';
 import { SBStorySchema } from './schema';
-import { SB_CONFIG, SBConfig } from '../config';
+import { SBConfig } from '../config';
 
 @Injectable()
 export abstract class SBAdapter {
@@ -80,50 +79,11 @@ export class SBBaseAdapter {
 }
 
 @Injectable()
-export class SBSdkAdapter extends SBBaseAdapter implements SBAdapter  {
-
-  constructor(private _sdk: StoryblokRef) { super(); }
-
-  /* @override */
-  fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
-    const options: { id?: number; slug?: string; version?: string } = {};
-    if (typeof slugOrId === 'number')
-      options.id = slugOrId;
-    else if (typeof slugOrId === 'string')
-      options.slug = slugOrId;
-    else
-      throw new TypeError(
-        `You have to provide the slug(string) or the id(number) as the first parameter!`);
-    if (typeof version === 'string')
-      options.version = version;
-    else if (typeof version !== 'undefined')
-      throw new TypeError('The version parameter for `fetchStory` has to be a string!');
-
-    return new Promise((resolve, reject) => {
-      const key = 'story#' + slugOrId;
-      if (!this._hasPending(key)) {
-        this._sdk.get(options).then(
-          s => this._resolvePending(key, s),
-          e => this._rejectPending(key, e));
-      }
-      this._addPending(key, resolve, reject);
-    });
-  }
-
-  /* @override */
-  fetchCollection(path: string): Promise<SBStorySchema[]> {
-    throw new Error(
-      `fetchCollection' is not yet supported when using the SBSdkAdapter.
-      Please use the SBHttpAdapter instead.`);
-  }
-}
-
-@Injectable()
 export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
 
   private _host = 'https://api.storyblok.com/v1/cdn';
 
-  constructor(private _http: Http, @Inject(SB_CONFIG) private _config: SBConfig) { super(); }
+  constructor(private _http: Http, private _config: SBConfig) { super(); }
 
   /* @override */
   fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
