@@ -245,6 +245,16 @@ export class SBDefaultStore implements SBStore {
       this.findCollection(path).then(s => {
         this._peekCollectionObject(path).observers.push(observer);
         this._notifyCollectionUpdate(path);
+      }).catch(reason => {
+        // not sure if we should call error callback on all
+        // stored observers for that story or just ignore them
+        this._notifyCollectionError(path, reason);
+
+        // call error callback on the provided observer if we
+        // catch an error. Also call complete and don't store
+        // the latest observer which causes the error
+        observer.error(reason);
+        observer.complete();
       });
     });
   }
@@ -362,5 +372,12 @@ export class SBDefaultStore implements SBStore {
     const obj = this._peekCollectionObject(path);
     if (obj && obj.observers)
       obj.observers.forEach(o => o.next(obj.collection));
+  }
+
+  /* @internal */
+  private _notifyCollectionError(path: string, error: any) {
+    const obj = this._peekCollectionObject(path);
+    if (obj && obj.observers)
+      obj.observers.forEach(o => o.error(error));
   }
 }
