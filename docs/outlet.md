@@ -46,6 +46,16 @@ To do this, we need to add those components to the `entryComponents` array in th
 import { PageIntroComponent } from './components/page-intro/page-intro.component';
 import { NewsListComponent } from './components/news-list/news-list.component';
 
+export function storyblockConfigFactory() {
+  return {
+    accessToken: '[[YOUR_PUBLIC_SB_ACCESS_TOKEN]]',
+    map: {
+      'intro': PageIntroComponent,
+      'NewsList': NewsListComponent
+    }
+  };
+}
+
 @NgModule({
   declarations: [
     ...
@@ -54,13 +64,7 @@ import { NewsListComponent } from './components/news-list/news-list.component';
   ],
   imports: [
     ...
-    SbModule.forRoot({
-      accessToken: 'TI4mZJKY6rPnyrOQS6u3bAtt',
-      map: {
-        'intro': PageIntroComponent,
-        'NewsList': NewsListComponent
-      }
-    })
+    SBModule.forRoot(storyblockConfigFactory)
   ],
   ...
   entryComponents: [PageIntroComponent, NewsListComponent]

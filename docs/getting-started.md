@@ -3,17 +3,17 @@
 Before getting started, please make sure ng-storyblok is installed as described in the [Readme](https://github.com/thomaspink/ng-storyblok).
 
 ## The NgModule
-ng-storyblok provides a NgModule called `SbModule` that has to be imported in your AppModule file.
+ng-storyblok provides a NgModule called `SBModule` that has to be imported in your AppModule file.
 `src/app/app.module.ts`
 ```ts
-import { SbModule } from 'ng-storyblok';
+import { SBModule } from 'ng-storyblok';
 ```
 
-Now you have to add the imported `SbModule` to the imports array in your AppModule and call the `forRoot` method with a configuration object.
+Now you have to add the imported `SBModule` to the imports array in your AppModule and call the `forRoot` method with a configuration object.
 ```ts
 @NgModule({
   imports: [
-    SbModule.forRoot({
+    SBModule.forRoot({
       // your config goes here
     })
   ],
@@ -35,7 +35,7 @@ The configuration consists of the following properties:
 **In code:**
 ```ts
 ...
-SbModule.forRoot({
+{
   accessToken: '[[YOUR_PUBLIC_SB_ACCESS_TOKEN]]';
   space: '[[YOUR_SB_SPACE_ID]]';
   endPoint: 'https://the.storyblok.com/api/endpoint';
@@ -43,7 +43,7 @@ SbModule.forRoot({
   map: {
     'SB-Component-Name': MyComponent
   }
-})
+}
 ...
 ```
 
@@ -54,9 +54,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { SbModule } from 'ng-storyblok';
+import { SBModule } from 'ng-storyblok';
 
 import { AppComponent } from './app.component';
+
+export function storyblockConfigFactory() {
+  return {
+    accessToken: '[[YOUR_PUBLIC_SB_ACCESS_TOKEN]]'
+  };
+}
 
 @NgModule({
   declarations: [
@@ -66,9 +72,7 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    SbModule.forRoot({
-      accessToken: '[[YOUR_PUBLIC_SB_ACCESS_TOKEN]]'
-    })
+    SBModule.forRoot(storyblockConfigFactory)
   ],
   providers: [],
   bootstrap: [AppComponent]
