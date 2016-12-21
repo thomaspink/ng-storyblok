@@ -43,11 +43,11 @@ When importing the module you have to provide a configuration to the `forRoot` m
   
 **src/app/app.module.ts**
 ```ts
-import { SbModule } from 'ng-storyblok';
+import { SBModule } from 'ng-storyblok';
 // other imports 
 @NgModule({
   imports: [
-    SbModule.forRoot({
+    SBModule.forRoot({
       accessToken: '[[PUBLIC-SB-TOKEN]]'
     })
   ],
