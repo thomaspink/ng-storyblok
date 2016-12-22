@@ -95,7 +95,7 @@ export class SBOutlet implements OnChanges, OnDestroy {
     const componentType = this.config.map[schema.type];
     if (!componentType) {
       throw new Error(
-        `Cannot activate component because the map in the config` +
+        `Cannot activate component because the map in the config ` +
         `has no entry for "${schema.type}".`);
     }
 
