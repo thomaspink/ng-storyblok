@@ -12,7 +12,7 @@ import { SBModule } from '../module';
 import { SBStore, SBDefaultStore } from './store';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 import { SBSerializer, SBDefaultSerializer } from './serializer';
-import { SBStory } from './model';
+import { SBStory, SBComponent } from './model';
 import { collectionPayload, storyPayload, HttpMockFactory } from './adapter.spec';
 import { Http, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
 
@@ -64,29 +64,6 @@ describe('SBHttpAdapter', () => {
     expect(typeof store.peekCollection).toBe('function');
     expect(typeof store.findCollection).toBe('function');
     expect(typeof store.reloadCollection).toBe('function');
-  });
-
-  describe('.story', () => {
-    it('should return an observable', () => {
-      expect(store.story('home') instanceof Observable).toBeTruthy();
-    });
-
-    it('should be subscribable and resolve a story', (done) => {
-      store.story('home').subscribe(s => {
-        expect(s instanceof SBStory).toBeTruthy();
-        done();
-      });
-    });
-
-    it('should call the error callback when thrown', (done) => {
-      store.story('wrong').subscribe(s => {
-        expect(false).toBeTruthy();
-        done();
-      }, error => {
-        expect(!!error).toBeTruthy();
-        done();
-      });
-    });
   });
 
   describe('.loadStory', () => {
@@ -172,7 +149,70 @@ describe('SBHttpAdapter', () => {
     });
   });
 
-  describe('.reloadStory', () => { });
+  describe('.reloadStory', () => {
+    it('should return a promise', (done) => {
+      store.findStory('home').then(s => {
+        expect(store.reloadStory(s) instanceof Promise).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should fetch the story from the adapter', (done) => {
+      requestCount = 0;
+      store.findStory('home').then(s => {
+        expect(requestCount).toBe(1);
+        store.reloadStory(s).then(s1 => {
+          expect(requestCount).toBe(2);
+          expect(s1).toBe(store.peekStory('home'));
+          done();
+        });
+      });
+    });
+
+    it('should reject the promise if an error happens', (done) => {
+      store.reloadStory(new SBStory({
+        id: 1,
+        name: 'something',
+        slug: 'something',
+        fullSlug: 'something',
+        created: new Date(),
+        published: new Date(),
+        alternates: [],
+        sortByDate: false,
+        tagList: [],
+        content: new SBComponent({ _uid: 'id', type: 'something', model: {} })
+      })).then(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
+  describe('.story', () => {
+    it('should return an observable', () => {
+      expect(store.story('home') instanceof Observable).toBeTruthy();
+    });
+
+    it('should be subscribable and resolve a story', (done) => {
+      store.story('home').subscribe(s => {
+        expect(s instanceof SBStory).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should call the error callback when thrown', (done) => {
+      store.story('wrong').subscribe(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(!!error).toBeTruthy();
+        done();
+      });
+    });
+  });
 
   describe('.collection', () => {
     // it('should return an observable', () => {
