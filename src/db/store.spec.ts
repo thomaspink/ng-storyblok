@@ -136,7 +136,42 @@ describe('SBHttpAdapter', () => {
     });
   });
 
-  describe('.findStory', () => { });
+  describe('.findStory', () => {
+    it('should return a promise', () => {
+      expect(store.findStory('home') instanceof Promise).toBeTruthy();
+    });
+
+    it('should fetch a story from the adapter if it is not already loaded', (done) => {
+      requestCount = 0;
+      store.findStory('home').then(s => {
+        expect(s instanceof SBStory).toBeTruthy();
+        expect(requestCount).toBe(1);
+        done();
+      });
+    });
+
+    it('should resolve with a story from the cache if it is already loaded', (done) => {
+      requestCount = 0;
+      store.findStory('home').then(s => {
+        store.findStory('home').then(s1 => {
+          expect(s instanceof SBStory).toBeTruthy();
+          expect(requestCount).toBe(1);
+          done();
+        });
+      });
+    });
+
+    it('should reject the promise if an error happens', (done) => {
+      store.findStory('error').then(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
   describe('.reloadStory', () => { });
 
   describe('.collection', () => {
