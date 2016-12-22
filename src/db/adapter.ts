@@ -71,7 +71,7 @@ export class SBBaseAdapter {
   /* @internal */
   protected _rejectPending(key: string, error: any) {
     const pending = this._pending[key];
-    if (Array.isArray(key)) {
+    if (Array.isArray(pending)) {
       pending.forEach(p => p.reject(error));
     }
     this._pending[key] = undefined;
@@ -104,7 +104,9 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
                 this._resolvePending(key, body);
               else
                 this._rejectPending(key, 'Could not load Story. Response body is empty!');
-            }, error => this._rejectPending(key, error));
+          }, error => {
+            this._rejectPending(key, error);
+          });
       this._addPending(key, resolve, reject);
     });
   }

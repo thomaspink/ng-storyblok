@@ -7,8 +7,9 @@
  */
 
 import { TestBed, inject } from '@angular/core/testing';
-import { Http, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
+import { Http, RequestOptionsArgs, Response, ResponseOptions, ResponseType } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
 import { SBModule } from '../module';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 
@@ -31,21 +32,35 @@ export const storyPayload = {
 };
 export const collectionPayload = { stories: [storyPayload.story] };
 
-var requestCount = 0;
 export class HttpMock {
+  constructor(private onRequest: (url, options) => void = function () { }) { };
   get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    requestCount++;
-    return new Observable(observer => {
+    this.onRequest(url, options);
+    return new Observable((observer: Observer<any>) => {
       setTimeout(() => {
-        observer.next(new Response(new ResponseOptions({
-          body: url.indexOf('collection') !== -1 ? collectionPayload : storyPayload,
-          status: 200
-        })));
+        if (url.indexOf('error') === -1) {
+          observer.next(new Response(new ResponseOptions({
+            body: url.indexOf('collection') !== -1 ? collectionPayload : storyPayload,
+            status: 200
+          })));
+        } else {
+          observer.error(new Response(new ResponseOptions({
+            body: 'error',
+            type: ResponseType.Error,
+            status: 404,
+            statusText: 'not found',
+          })));
+        }
       }, 100);
     });
   }
 }
 
+export function HttpMockFactory(onRequest?: (url, options) => void) {
+  return new HttpMock(onRequest);
+}
+
+var requestCount = 0;
 describe('SBHttpAdapter', () => {
   var adapter: SBAdapter;
 
@@ -62,7 +77,7 @@ describe('SBHttpAdapter', () => {
         // Provided SBHttpAdapter so we are not depending on the adapter
         // the module provides and we can be sure it is the right one
         { provide: SBAdapter, useClass: SBHttpAdapter },
-        { provide: Http, useClass: HttpMock }
+        { provide: Http, useValue: HttpMockFactory(() => requestCount++) }
       ]
     });
 
@@ -94,6 +109,16 @@ describe('SBHttpAdapter', () => {
       adapter.fetchStory('story');
       expect(requestCount).toBe(1);
     });
+
+    it('should call the error callback', (done) => {
+      adapter.fetchStory('error').then(v => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(true).toBeTruthy();
+        done();
+      });
+    });
   });
 
   describe('.fetchCollection', () => {
@@ -109,6 +134,16 @@ describe('SBHttpAdapter', () => {
       adapter.fetchCollection('collection');
       adapter.fetchCollection('collection');
       expect(requestCount).toBe(1);
+    });
+
+    it('should call the error callback', (done) => {
+      adapter.fetchCollection('error').then(v => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(true).toBeTruthy();
+        done();
+      });
     });
   });
 
