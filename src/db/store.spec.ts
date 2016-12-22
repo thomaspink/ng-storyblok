@@ -204,12 +204,25 @@ describe('SBHttpAdapter', () => {
     });
 
     it('should call the error callback when thrown', (done) => {
-      store.story('wrong').subscribe(s => {
+      store.story('error').subscribe(s => {
         expect(false).toBeTruthy();
         done();
       }, error => {
         expect(!!error).toBeTruthy();
         done();
+      });
+    });
+
+    it('should call next on the observer if story changes', (done) => {
+      var count = 0;
+      store.story('home').subscribe(s => {
+        count++;
+        if (count === 1) {
+          store.reloadStory(s);
+        } else {
+          expect(count).toBe(2);
+          done();
+        }
       });
     });
   });
@@ -223,6 +236,8 @@ describe('SBHttpAdapter', () => {
       requestCount = 0;
       store.loadCollection('collection').then(c => {
         expect(Array.isArray(c)).toBeTruthy();
+        expect(c.length).toBe(1);
+        expect(c[0] instanceof SBStory).toBeTruthy();
         expect(requestCount).toBe(1);
         done();
       });
@@ -270,6 +285,8 @@ describe('SBHttpAdapter', () => {
       requestCount = 0;
       store.findCollection('collection').then(c => {
         expect(Array.isArray(c)).toBeTruthy();
+        expect(c.length).toBe(1);
+        expect(c[0] instanceof SBStory).toBeTruthy();
         expect(requestCount).toBe(1);
         done();
       });
@@ -280,6 +297,8 @@ describe('SBHttpAdapter', () => {
       store.findCollection('collection').then(c => {
         store.findCollection('collection').then(c1 => {
           expect(Array.isArray(c1)).toBeTruthy();
+          expect(c.length).toBe(1);
+          expect(c[0] instanceof SBStory).toBeTruthy();
           expect(requestCount).toBe(1);
           done();
         });
@@ -329,27 +348,40 @@ describe('SBHttpAdapter', () => {
   });
 
   describe('.collection', () => {
-    // it('should return an observable', () => {
-    //   expect(store.collection('collection') instanceof Observable).toBeTruthy();
-    // });
+    it('should return an observable', () => {
+      expect(store.collection('collection') instanceof Observable).toBeTruthy();
+    });
 
-    // it('should be subscribable and resolve a collection of story', (done) => {
-    //   store.collection('collection').subscribe(c => {
-    //     expect(Array.isArray(c)).toBeTruthy();
-    //     expect(c.length).toBe(1);
-    //     expect(c[0] instanceof SBStory).toBeTruthy();
-    //     done();
-    //   });
-    // });
+    it('should be subscribable and resolve a collection', (done) => {
+      store.collection('collection').subscribe(c => {
+        expect(Array.isArray(c)).toBeTruthy();
+        expect(c.length).toBe(1);
+        expect(c[0] instanceof SBStory).toBeTruthy();
+        done();
+      });
+    });
 
-    // it('should call the error callback when thrown', (done) => {
-    //   store.collection('wrong').subscribe(s => {
-    //     expect(false).toBeTruthy();
-    //     done();
-    //   }, error => {
-    //     expect(!!error).toBeTruthy();
-    //     done();
-    //   });
-    // });
+    it('should call the error callback when thrown', (done) => {
+      store.collection('error').subscribe(c => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(!!error).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should call next on the observer if collection changes', (done) => {
+      var count = 0;
+      store.collection('collection').subscribe(c => {
+        count++;
+        if (count === 1) {
+          store.reloadCollection('collection');
+        } else {
+          expect(count).toBe(2);
+          done();
+        }
+      });
+    });
   });
 });
