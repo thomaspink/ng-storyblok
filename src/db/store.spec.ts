@@ -131,7 +131,7 @@ describe('SBHttpAdapter', () => {
       requestCount = 0;
       store.findStory('home').then(s => {
         store.findStory('home').then(s1 => {
-          expect(s instanceof SBStory).toBeTruthy();
+          expect(s1 instanceof SBStory).toBeTruthy();
           expect(requestCount).toBe(1);
           done();
         });
@@ -214,6 +214,120 @@ describe('SBHttpAdapter', () => {
     });
   });
 
+  describe('.loadCollection', () => {
+    it('should return a promise', () => {
+      expect(store.loadCollection('collection') instanceof Promise).toBeTruthy();
+    });
+
+    it('should fetch a collection from the adapter and resolve the promise', (done) => {
+      requestCount = 0;
+      store.loadCollection('collection').then(c => {
+        expect(Array.isArray(c)).toBeTruthy();
+        expect(requestCount).toBe(1);
+        done();
+      });
+    });
+
+    it('should reject the promise on error', (done) => {
+      store.loadCollection('error').then(c => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
+  describe('.peekCollection', () => {
+    it('should return a collection', (done) => {
+      store.loadCollection('collection').then(c => {
+        expect(Array.isArray(store.peekCollection('collection'))).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should return "undefined" if not found', () => {
+      expect(store.peekCollection('notfound')).toBeUndefined();
+    });
+
+    it('should not fetch a collection from the adapter', (done) => {
+      store.loadCollection('collection').then(c => {
+        requestCount = 0;
+        store.peekCollection('collection');
+        expect(requestCount).toBe(0);
+        done();
+      });
+    });
+  });
+
+  describe('.findCollection', () => {
+    it('should return a promise', () => {
+      expect(store.findCollection('collection') instanceof Promise).toBeTruthy();
+    });
+
+    it('should fetch a collection from the adapter if it is not already loaded', (done) => {
+      requestCount = 0;
+      store.findCollection('collection').then(c => {
+        expect(Array.isArray(c)).toBeTruthy();
+        expect(requestCount).toBe(1);
+        done();
+      });
+    });
+
+    it('should resolve with a collection from the cache if it is already loaded', (done) => {
+      requestCount = 0;
+      store.findCollection('collection').then(c => {
+        store.findCollection('collection').then(c1 => {
+          expect(Array.isArray(c1)).toBeTruthy();
+          expect(requestCount).toBe(1);
+          done();
+        });
+      });
+    });
+
+    it('should reject the promise if an error happens', (done) => {
+      store.findCollection('error').then(c => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
+  describe('.reloadCollection', () => {
+    it('should return a promise', (done) => {
+      store.findCollection('collection').then(s => {
+        expect(store.reloadCollection('collection') instanceof Promise).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should fetch the story from the adapter', (done) => {
+      requestCount = 0;
+      store.findCollection('collection').then(s => {
+        expect(requestCount).toBe(1);
+        store.reloadCollection('collection').then(c1 => {
+          expect(requestCount).toBe(2);
+          expect(c1).toBe(store.peekCollection('collection'));
+          done();
+        });
+      });
+    });
+
+    it('should reject the promise if an error happens', (done) => {
+      store.reloadCollection('error').then(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
   describe('.collection', () => {
     // it('should return an observable', () => {
     //   expect(store.collection('collection') instanceof Observable).toBeTruthy();
@@ -238,8 +352,4 @@ describe('SBHttpAdapter', () => {
     //   });
     // });
   });
-  describe('.loadCollection', () => { });
-  describe('.peekCollection', () => { });
-  describe('.findCollection', () => { });
-  describe('.reloadCollection', () => { });
 });
