@@ -243,8 +243,9 @@ export class SBDefaultStore implements SBStore {
   collection(path: string): Observable<SBStory[]> {
     return Observable.create((observer: Observer<SBStory[]>) => {
       this.findCollection(path).then(s => {
-        this._peekCollectionObject(path).observers.push(observer);
-        this._notifyCollectionUpdate(path);
+        const obj = this._peekCollectionObject(path);
+        obj.observers.push(observer);
+        observer.next(s);
       }).catch(reason => {
         // not sure if we should call error callback on all
         // stored observers for that story or just ignore them
@@ -315,15 +316,16 @@ export class SBDefaultStore implements SBStore {
   /* @internal */
   private _setStoryObject(story: SBStory, version?: string) {
     let result = this._peekStoryObject(story.id, version);
-    if (result)
+    if (result) {
       result.story = story;
-    else
+      this._notifyStoryUpdate(story.id);
+    } else {
       this._stories.push({
         story: story,
         version: version,
         observers: []
       });
-    this._notifyStoryUpdate(story.id);
+    }
   }
 
   /* @internal */
@@ -357,14 +359,15 @@ export class SBDefaultStore implements SBStore {
       return;
     const result = this._peekCollectionObject(path);
     collection.forEach(s => this._setStoryObject(s));
-    if (result)
+    if (result) {
       result.collection = collection;
-    else
+      this._notifyCollectionUpdate(path);
+    } else {
       this._collections[path] = {
         collection: collection,
         observers: []
       };
-    this._notifyCollectionUpdate(path);
+    }
   }
 
   /* @internal */
