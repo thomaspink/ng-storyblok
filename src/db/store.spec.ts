@@ -7,14 +7,16 @@
  */
 
 import { TestBed, inject } from '@angular/core/testing';
-import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { SBModule } from '../module';
 import { SBStore, SBDefaultStore } from './store';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 import { SBSerializer, SBDefaultSerializer } from './serializer';
 import { SBStory } from './model';
-import { HttpMock } from './adapter.spec';
+import { collectionPayload, storyPayload, HttpMockFactory } from './adapter.spec';;
+import { Http, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
+
+var requestCount = 0;
 
 describe('SBHttpAdapter', () => {
   var store: SBStore;
@@ -27,10 +29,10 @@ describe('SBHttpAdapter', () => {
     }
     TestBed.configureTestingModule({
       imports: [SBModule.forRoot(function storyblockConfigFactory() {
-      return {
-        accessToken: 'token'
-      };
-    })],
+        return {
+          accessToken: 'token'
+        };
+      })],
       providers: [
         // Provided SBHttpAdapter and SBDefaultSerializer again,
         // so we are not depending on the adapter and serializer
@@ -38,7 +40,7 @@ describe('SBHttpAdapter', () => {
         // right ones (default and http)
         { provide: SBAdapter, useClass: SBHttpAdapter },
         { provide: SBSerializer, useClass: SBDefaultSerializer },
-        { provide: Http, useClass: HttpMock }
+        { provide: Http, useValue: HttpMockFactory(() => requestCount++) }
       ]
     });
 
@@ -86,23 +88,70 @@ describe('SBHttpAdapter', () => {
       });
     });
   });
-  describe('.loadStory', () => { });
-  describe('.peekStory', () => { });
-  describe('.findStory', () => { });
-  describe('.reloadStory', () => { });
-  describe('.collection', () => {
-    it('should return an observable', () => {
-      expect(store.collection('collection') instanceof Observable).toBeTruthy();
+
+  describe('.loadStory', () => {
+    it('should return a promise', () => {
+      expect(store.loadStory('home') instanceof Promise).toBeTruthy();
     });
 
-    it('should be subscribable and resolve a collection of story', (done) => {
-      store.collection('collection').subscribe(c => {
-        expect(Array.isArray(c)).toBeTruthy();
-        expect(c.length).toBe(1);
-        expect(c[0] instanceof SBStory).toBeTruthy();
+    it('should fetch a story from the adapter and resolve the promise', (done) => {
+      requestCount = 0;
+      store.loadStory('home').then(s => {
+        expect(s instanceof SBStory).toBeTruthy();
+        expect(requestCount).toBe(1);
         done();
       });
     });
+
+    it('should reject the promise on error', (done) => {
+      store.loadStory('error').then(s => {
+        expect(false).toBeTruthy();
+        done();
+      }, error => {
+        expect(error).toBeDefined();
+        done();
+      });
+    });
+  });
+
+  describe('.peekStory', () => {
+    it('should return a story', (done) => {
+      store.loadStory('home').then(s => {
+        expect(store.peekStory('home') instanceof SBStory).toBeTruthy();
+        done();
+      });
+    });
+
+    it('should return "undefined" if not found', () => {
+      expect(store.peekStory('notfound')).toBeUndefined();
+    });
+
+    it('should not fetch a story from the adapter', (done) => {
+      store.loadStory('home').then(s => {
+        requestCount = 0;
+        store.peekStory('home');
+        expect(requestCount).toBe(0);
+        done();
+      });
+    });
+  });
+
+  describe('.findStory', () => { });
+  describe('.reloadStory', () => { });
+
+  describe('.collection', () => {
+    // it('should return an observable', () => {
+    //   expect(store.collection('collection') instanceof Observable).toBeTruthy();
+    // });
+
+    // it('should be subscribable and resolve a collection of story', (done) => {
+    //   store.collection('collection').subscribe(c => {
+    //     expect(Array.isArray(c)).toBeTruthy();
+    //     expect(c.length).toBe(1);
+    //     expect(c[0] instanceof SBStory).toBeTruthy();
+    //     done();
+    //   });
+    // });
 
     // it('should call the error callback when thrown', (done) => {
     //   store.collection('wrong').subscribe(s => {
@@ -117,5 +166,5 @@ describe('SBHttpAdapter', () => {
   describe('.loadCollection', () => { });
   describe('.peekCollection', () => { });
   describe('.findCollection', () => { });
-  describe('.reloadCollection', () => {});
+  describe('.reloadCollection', () => { });
 });
