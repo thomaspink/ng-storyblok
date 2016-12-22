@@ -13,7 +13,7 @@ import { SBStore, SBDefaultStore } from './store';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 import { SBSerializer, SBDefaultSerializer } from './serializer';
 import { SBStory } from './model';
-import { collectionPayload, storyPayload, HttpMockFactory } from './adapter.spec';;
+import { collectionPayload, storyPayload, HttpMockFactory } from './adapter.spec';
 import { Http, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
 
 var requestCount = 0;
