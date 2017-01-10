@@ -6,8 +6,12 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
-export * from './db';
-export * from './directives';
-export * from './module';
-export * from './config';
-export * from './linker';
+import { SBMessageBus } from './messaging';
+import { SBLinker } from './linker';
+
+export { SBMessageBus, SBLinker };
+
+export const SB_LINKER_PROVIDER = [
+  SBMessageBus,
+  SBLinker
+];

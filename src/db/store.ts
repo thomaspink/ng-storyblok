@@ -10,6 +10,7 @@ import { Injectable } from '@angular/core';
 import { SBStory } from './model';
 import { SBAdapter } from './adapter';
 import { SBSerializer } from './serializer';
+import { SBLinker } from '../linker';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import 'rxjs/add/operator/map';
@@ -185,7 +186,12 @@ export class SBDefaultStore implements SBStore {
   private _lastPeekedStory: StoryObject;
   private _collections: { [key: string]: CollectionObject } = {};
 
-  constructor(private _adapter: SBAdapter, private _serializer: SBSerializer) { }
+  constructor(private _adapter: SBAdapter, private _serializer: SBSerializer,
+    private _linker: SBLinker) {
+    _linker.onEditMode().subscribe(isEditMode => {
+      console.log('edit ' + isEditMode);
+    });
+  }
 
   /* @override */
   story(slugOrId: string | number, version?: string): Observable<SBStory> {

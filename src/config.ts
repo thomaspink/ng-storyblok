@@ -13,6 +13,7 @@ export abstract class SBConfig {
   space?: string;
   endPoint?: string;
   type?: 'full' | 'widget';
+  customParent?: string;
   map?: {
     [key: string]: Type<any>
   };

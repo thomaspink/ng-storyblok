@@ -13,11 +13,13 @@ import { SBConfig } from './config';
 import { SBSerializer, SBDefaultSerializer } from './db/serializer';
 import { SBAdapter, SBHttpAdapter } from './db/adapter';
 import { SBStore, SBDefaultStore } from './db/store';
+import { SB_LINKER_PROVIDER } from './linker';
 
 export const SB_PROVIDERS: Provider[] = [
   { provide: SBAdapter, useClass: SBHttpAdapter },
   { provide: SBSerializer, useClass: SBDefaultSerializer },
-  { provide: SBStore, useClass: SBDefaultStore }
+  { provide: SBStore, useClass: SBDefaultStore },
+  SB_LINKER_PROVIDER
 ];
 
 /**
