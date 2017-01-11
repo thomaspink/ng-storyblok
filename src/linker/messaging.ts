@@ -111,6 +111,7 @@ export class SBMessageBus {
 
   /* @internal */
   private _onMessage(event: MessageEvent) {
+    console.log(event);
     if (!(event instanceof MessageEvent))
       return;
     if (!event.data.action)
@@ -118,8 +119,6 @@ export class SBMessageBus {
     const data = event.data;
     const action = data.action;
     delete data.action;
-
-    console.log(event);
 
     if (action === 'pingBack' && this._pendingPings.length) {
       this._pendingPings.forEach(s => s.next() && s.complete());
@@ -139,8 +138,6 @@ export class SBMessageBus {
     if (!this._isInIFrame)
       return;
 
-    console.log('send', action);
-
     let request = data;
     if (typeof request !== 'object' || Array.isArray(request)) {
       request = {
@@ -149,10 +146,12 @@ export class SBMessageBus {
     }
     request['action'] = action;
 
-    if (this._isActive) {
+    if (this._isActive || action === 'ping') {
+      console.log('send ', request);
       window.parent.postMessage(request, this._parentDomain);
     } else {
       this.ping().subscribe(_ => {
+        console.log('send ', request);
         window.parent.postMessage(request, this._parentDomain);
       });
     }
