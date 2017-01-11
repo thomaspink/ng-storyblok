@@ -8,7 +8,7 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { Subscriber } from 'rxjs/Subscriber';
+import { Subject } from 'rxjs/Subject';
 import { SBConfig } from '../config';
 
 /**
@@ -20,15 +20,16 @@ import { SBConfig } from '../config';
  */
 @Injectable()
 export class SBMessageBus {
-  private _subs = new Map<string, Subscriber<any>[]>();
-  private _isPinging = false;
-  private _isActive = false;
-  private _pendingPings: Subscriber<any>[] = [];
+
+  private _subs: {[key: string]:Subject<any>} = {};
+  // private _isPinging = false;
+  // private _isActive = false;
+  // private _pendingPings: Subscriber<any>[] = [];
 
   constructor(private _config: SBConfig) {
     if (this._isInIFrame) {
-      window.addEventListener('message', this._onMessage.bind(this), false);
-      this.ping();
+      window.addEventListener('message', event => this._onMessage(event));
+      // this.ping();
     }
   }
 
@@ -72,17 +73,12 @@ export class SBMessageBus {
    * @memberOf SBMessageBus
    */
   on(action: string): Observable<any> {
-    if (action === 'ping')
-      return this.ping();
-
-    return new Observable((subscriber: Subscriber<any>) => {
-      let subs = this._subs.get(action);
-      if (!subs) {
-        subs = [];
-        this._subs.set(action, subs);
-      }
-      subs.push(subscriber);
-    });
+    let sub = this._subs[action];
+    if (!(sub instanceof Subject)) {
+      sub = new Subject();
+      this._subs[action] = sub;
+    }
+    return sub.asObservable();
   }
 
   /**
@@ -96,41 +92,36 @@ export class SBMessageBus {
    *
    * @memberOf SBMessageBus
    */
-  ping(): Observable<void> {
-    if (!this._isPinging && !this._isActive) {
-      this._isPinging = true;
-      this._sendMessage('ping');
-    }
-    return new Observable<void>((subscriber: Subscriber<void>) => {
-      if (this._isActive)
-        subscriber.next();
-      else
-        this._pendingPings.push(subscriber);
-    });
-  }
+  // ping(): Observable<void> {
+  //   if (!this._isPinging && !this._isActive) {
+  //     this._isPinging = true;
+  //     this._sendMessage('ping');
+  //   }
+  //   return new Observable<void>((subscriber: Subscriber<void>) => {
+  //     if (this._isActive)
+  //       subscriber.next();
+  //     else
+  //       this._pendingPings.push(subscriber);
+  //   });
+  // }
 
   /* @internal */
   private _onMessage(event: MessageEvent) {
-    console.log(event);
     if (!(event instanceof MessageEvent))
       return;
     if (!event.data.action)
       return;
+
+    if (event.origin !== this._parentDomain)
+      return;
+
     const data = event.data;
     const action = data.action;
     delete data.action;
 
-    if (action === 'pingBack' && this._pendingPings.length) {
-      this._pendingPings.forEach(s => s.next() && s.complete());
-      this._pendingPings = [];
-      this._isPinging = false;
-      this._isActive = true;
-      return;
-    }
-
-    const subs = this._subs.get(action);
-    if (Array.isArray(subs))
-      subs.forEach(s => s.next(data));
+    const sub = this._subs[action];
+    if (sub instanceof Subject)
+      sub.next(data);
   }
 
   /* @internal */
@@ -138,23 +129,14 @@ export class SBMessageBus {
     if (!this._isInIFrame)
       return;
 
-    let request = data;
+    let request = typeof data !== 'undefined' ? data : {};
     if (typeof request !== 'object' || Array.isArray(request)) {
       request = {
         data: data
       };
     }
     request['action'] = action;
-
-    if (this._isActive || action === 'ping') {
-      console.log('send ', request);
-      window.parent.postMessage(request, this._parentDomain);
-    } else {
-      this.ping().subscribe(_ => {
-        console.log('send ', request);
-        window.parent.postMessage(request, this._parentDomain);
-      });
-    }
+    window.parent.postMessage(request, this._parentDomain);
   }
 
 }
