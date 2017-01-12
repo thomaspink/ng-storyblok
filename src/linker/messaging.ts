@@ -21,7 +21,7 @@ import { SBConfig } from '../config';
 @Injectable()
 export class SBMessageBus {
 
-  private _subs: {[key: string]:Subject<any>} = {};
+  private _subs: { [key: string]: Subject<any> } = {};
   // private _isPinging = false;
   // private _isActive = false;
   // private _pendingPings: Subscriber<any>[] = [];
