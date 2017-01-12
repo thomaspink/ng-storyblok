@@ -29,7 +29,7 @@ const story = new SBStory({
       content: component
     });
 
-describe('Model', () => {
+export default describe('Model', () => {
   describe('SBComponent', () => {
     it('Constructor', () => {
       expect(component instanceof SBComponent).toBeTruthy();

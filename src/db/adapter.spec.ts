@@ -61,7 +61,7 @@ export function HttpMockFactory(onRequest?: (url, options) => void) {
 }
 
 var requestCount = 0;
-describe('SBHttpAdapter', () => {
+export default describe('SBHttpAdapter', () => {
   var adapter: SBAdapter;
 
   beforeEach(() => {

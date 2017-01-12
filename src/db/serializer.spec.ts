@@ -21,7 +21,7 @@ const componentPayload = `{
 }`;
 
 
-describe('SBDefaultSerializer', () => {
+export default describe('SBDefaultSerializer', () => {
   var serializer: SBSerializer;
 
   beforeEach(() => {

@@ -2,10 +2,11 @@ export default (mod) => {
   if (mod === 'rxjs') return 'Rx';
   if (mod.indexOf('rxjs/operator') === 0) return `Rx.Observable.prototype`;
   if (mod.indexOf('rxjs/observable') === 0) return `Rx.Observable`;
+  if (mod.indexOf('rxjs/subscriber') === 0) return `Rx.Subscriber`;
+  if (mod.indexOf('rxjs/subject') === 0) return `Rx.Subject`;
+  if (mod.indexOf('rxjs/subscription') === 0) return `Rx.Subscription`;
   if (mod === 'rxjs/scheduler/queue') return 'Rx.Scheduler';
   if (mod.indexOf('rxjs/') === 0) return 'Rx';
-
-  if (mod === 'firebase') return 'firebase';
   if (mod === '@angular/core') return 'ng.core';
   if (mod === '@angular/core/testing') return 'ng.core.testing';
   if (mod === '@angular/http') return 'ng.http';
