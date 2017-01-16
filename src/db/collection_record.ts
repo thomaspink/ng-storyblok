@@ -1,12 +1,13 @@
 import { SBRecord } from './record';
 import { SBStory } from './model';
+import { SBStoryRecord } from './story_record';
 
-export class SBStoryRecord extends SBRecord<SBStory> {
+export class SBCollectionRecord extends SBRecord<SBStoryRecord[]> {
 
   /** Reference to the latest loaded story */
-  get $story() {
+  get $collection() {
     if (this.closed) {
-      throw new StoryUnsubscribedError();
+      throw new CollectionUnsubscribedError();
     }
     return this._value;
   }
@@ -22,10 +23,10 @@ export class SBStoryRecord extends SBRecord<SBStory> {
   }
 }
 
-export class StoryUnsubscribedError extends Error {
+export class CollectionUnsubscribedError extends Error {
   constructor() {
     const err: any = super('story unsubscribed');
-    (<any>this).name = err.name = 'StoryUnsubscribedError';
+    (<any>this).name = err.name = 'CollectionUnsubscribedError';
     (<any>this).stack = err.stack;
     (<any>this).message = err.message;
   }
