@@ -11,7 +11,7 @@ import { SBStory } from './model';
 import { SBAdapter } from './adapter';
 import { SBSerializer } from './serializer';
 // import { SBLinker } from '../linker/linker';
-import { SBStoryRecord } from './story_observable';
+import { SBStoryRecord } from './story_record';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
