@@ -79,12 +79,10 @@ export class SBStoryRecord extends Subject<SBStory> {
    * @returns {SBStoryRecord}
    * @memberOf SBStoryRecord
    */
-  lift(operator: Operator<SBStory, SBStory>): SBStoryRecord {
-    const subject = new SBStoryRecord();
-    subject.source = this._parentRecord || this;
-    subject.operator = operator;
-    subject._story = this._story;
-    return subject;
+  lift(operator: Operator<SBStory, SBStory>): Observable<SBStory> {
+    const observable = this.asObservable();
+    (<any>observable).operator = operator;
+    return observable;
   }
 
   /**
