@@ -13,7 +13,7 @@ import { SBStore, SBDefaultStore } from './store';
 import { SBAdapter, SBHttpAdapter } from './adapter';
 import { SBSerializer, SBDefaultSerializer } from './serializer';
 import { SBStory, SBComponent } from './model';
-import { SBStoryObservable } from './story_observable';
+import { SBStoryRecord } from './story_observable';
 import { collectionPayload, storyPayload, HttpMockFactory } from './adapter.spec';
 import { Http, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
 
@@ -194,7 +194,7 @@ export default describe('SBHttpAdapter', () => {
 
   describe('.story', () => {
     it('should return an SBStoryObservable', () => {
-      expect(store.story('home') instanceof SBStoryObservable).toBeTruthy();
+      expect(store.story('home') instanceof SBStoryRecord).toBeTruthy();
     });
 
     it('should be subscribable and resolve a story', (done) => {

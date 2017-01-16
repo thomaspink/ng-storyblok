@@ -11,11 +11,12 @@ import { SBStory } from './model';
 import { SBAdapter } from './adapter';
 import { SBSerializer } from './serializer';
 // import { SBLinker } from '../linker/linker';
-import { SBStoryObservable } from './story_observable';
+import { SBStoryRecord } from './story_observable';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/toPromise';
 
 type StoryObject = { story: SBStory; version?: string; observers: Observer<SBStory>[] };
 type CollectionObject = { collection: SBStory[]; observers: Observer<SBStory[]>[] };
@@ -47,7 +48,7 @@ export abstract class SBStore {
    *
    * @memberOf SBStore
    */
-  abstract story(slugOrId: string | number, version?: string): SBStoryObservable;
+  abstract story(slugOrId: string | number, version?: string): SBStoryRecord;
 
   /**
    * Get a story by a given slug or ID by looking up the story from the store if it is
@@ -183,8 +184,8 @@ export abstract class SBStore {
 export class SBDefaultStore implements SBStore {
 
   private _storiesOld: StoryObject[] = [];
-  private _storyObservables: SBStoryObservable[] = [];
-  private _stories = new Map<SBStory, Subject<SBStory>>();
+  private _storyObservables: SBStoryRecord[] = [];
+  private _stories: SBStoryRecord[] = [];
   private _lastPeekedStory: StoryObject;
   private _collections: { [key: string]: CollectionObject } = {};
 
@@ -195,22 +196,8 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @override */
-  story(slugOrId: string | number): SBStoryObservable {
-    return SBStoryObservable.create((observer: Observer<SBStory>) => {
-      this.findStory(slugOrId).then(story => {
-        const {subject} = this._getStoryAndSubject(story);
-        subject.subscribe(s => {
-          observer.next(s);
-        }, reason => {
-          observer.error(reason);
-          observer.complete();
-        });
-        subject.next(story);
-      }).catch(reason => {
-        observer.error(reason);
-        observer.complete();
-      });
-    });
+  story(slugOrId: string | number): SBStoryRecord {
+    return this._getStoryRecord(slugOrId) || this._fetchStoryFromAdapter(slugOrId);
   }
 
   /* @override */
@@ -224,31 +211,18 @@ export class SBDefaultStore implements SBStore {
 
   /* @override */
   peekStory(slugOrId: number | string): SBStory {
-    const {story, subject} = this._getStoryAndSubject(slugOrId);
-    return story || undefined;
+    const record = this._getStoryRecord(slugOrId);
+    return record && record.$story || undefined;
   }
 
   /* @override */
   loadStory(slugOrId: number | string): Promise<SBStory> {
-    return this._adapter.fetchStory(slugOrId, '').then(s => {
-      const newStory = this._serializer.normalizeStory(s);
-      if (slugOrId !== newStory.id && slugOrId !== newStory.slug)
-        throw new Error(`The id or slug "${slugOrId}" provided for loading a story does not ` +
-          `match the ones (id: ${newStory.id}, slug: "${newStory.slug}") in the loaded payload`);
-      let {story, subject} = this._getStoryAndSubject(slugOrId);
-      if (story)
-        this._stories.delete(story);
-      if (!subject)
-        subject = new Subject<SBStory>();
-      this._stories.set(newStory, subject);
-      subject.next(story);
-      return newStory;
-    });
+    return this._fetchStoryFromAdapter(slugOrId).toPromise();
   }
 
   /* @override */
   reloadStory(story: SBStory): Promise<SBStory> {
-    return this.loadStory(story.id);
+    return this._fetchStoryFromAdapter(story).toPromise();
   }
 
   /* @override */
@@ -339,8 +313,9 @@ export class SBDefaultStore implements SBStore {
       obj.observers.forEach(o => o.error(error));
   }
 
-  protected _getStoryAndSubject<S extends SBStory>(idOrSlugOrStory: number | string | S):
-    { story: S, subject: Subject<S> } {
+  /* @internal */
+  private _getStoryRecord<S extends SBStory>(idOrSlugOrStory: number | string | S):
+    SBStoryRecord {
     if (typeof idOrSlugOrStory === 'string' && !isNaN(<any>idOrSlugOrStory)) {
       // Not shure if we should throw an error or parse the ID to a number
       // if it is provided as a string.
@@ -349,14 +324,32 @@ export class SBDefaultStore implements SBStore {
         `but it has to be a number not a string`);
       // idOrSlugOrStory = parseInt(slug, 10);
     }
+    return this._stories.find(record =>
+      record.$story instanceof SBStory && (record.$story.id === idOrSlugOrStory ||
+        record.$story.slug === idOrSlugOrStory || record.$story === idOrSlugOrStory));
+  }
 
-    let result: { story, subject } = { story: undefined, subject: undefined };
-    this._stories.forEach((subject, story) => {
-      if (story.id === idOrSlugOrStory || story.slug === idOrSlugOrStory ||
-        story === idOrSlugOrStory) {
-        result = { story, subject };
+  /* @internal */
+  private _fetchStoryFromAdapter(idOrSlugOrStory) {
+    const slugOrId: number | string = idOrSlugOrStory['id'] || idOrSlugOrStory;
+    let record = this._getStoryRecord(idOrSlugOrStory);
+    if (!record) {
+      record = new SBStoryRecord();
+      this._stories.push(record);
+    }
+    this._adapter.fetchStory(slugOrId, '').then(s => {
+      const story = this._serializer.normalizeStory(s);
+      if (slugOrId !== story.id && slugOrId !== story.slug) {
+        throw new Error(`The id or slug "${slugOrId}" provided for loading a story does not ` +
+          `match the ones (id: ${story.id}, slug: "${story.slug}") in the loaded payload`);
       }
+      const existingRecord = this._getStoryRecord(slugOrId);
+      if (existingRecord && existingRecord !== record) {
+        record._parent = existingRecord;
+      }
+      record.next(story);
     });
-    return result;
+
+    return record;
   }
 }
