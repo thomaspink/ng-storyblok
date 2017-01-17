@@ -12,6 +12,7 @@ import { SBAdapter } from './adapter';
 import { SBSerializer } from './serializer';
 // import { SBLinker } from '../linker/linker';
 import { SBStoryRecord } from './story_record';
+import { SBCollectionRecord } from './collection_record';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
@@ -119,11 +120,11 @@ export abstract class SBStore {
    * http://reactivex.io/rxjs/
    *
    * @param {string} path
-   * @returns {Observable<SBStory[]>}
+   * @returns {SBCollectionRecord}
    *
    * @memberOf SBStore
    */
-  abstract collection(path: string): Observable<SBStory[]>;
+  abstract collection(path: string): SBCollectionRecord;
 
   /**
    * Get a collection of stories by a path by looking up the story from the store if it is
@@ -186,8 +187,9 @@ export class SBDefaultStore implements SBStore {
   private _storiesOld: StoryObject[] = [];
   private _storyObservables: SBStoryRecord[] = [];
   private _stories: SBStoryRecord[] = [];
+  private _collections: SBCollectionRecord[] = [];
   private _lastPeekedStory: StoryObject;
-  private _collections: { [key: string]: CollectionObject } = {};
+  private _collectionsOld: { [key: string]: CollectionObject } = {};
 
   constructor(private _adapter: SBAdapter, private _serializer: SBSerializer) {
     // _linker.onEditMode().subscribe(isEditMode => {
@@ -226,91 +228,29 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @override */
-  collection(path: string): Observable<SBStory[]> {
-    return Observable.create((observer: Observer<SBStory[]>) => {
-      this.findCollection(path).then(s => {
-        const obj = this._peekCollectionObject(path);
-        obj.observers.push(observer);
-        observer.next(s);
-      }).catch(reason => {
-        // not sure if we should call error callback on all
-        // stored observers for that story or just ignore them
-        this._notifyCollectionError(path, reason);
-
-        // call error callback on the provided observer if we
-        // catch an error. Also call complete and don't store
-        // the latest observer which causes the error
-        observer.error(reason);
-        observer.complete();
-      });
-    });
+  collection(path: string): SBCollectionRecord {
+    return this._getCollectionRecord(path) || this._fetchCollectionFromAdapter(path);
   }
 
   /* @override */
   findCollection(path: string): Promise<SBStory[]> {
     const result = this.peekCollection(path);
-    if (result)
-      return new Promise(resolve => resolve(result));
-    else
-      return this.loadCollection(path);
+    return result ? new Promise(resolve => resolve(result)) : this.loadCollection(path);
   }
 
   /* @override */
   peekCollection(path: string): SBStory[] {
-    const result = this._peekCollectionObject(path);
-    return !!result ? result.collection : undefined;
+    const result = this._getCollectionRecord(path);
+    return !!result && !!result.$collection ? result.$collection.map(r => r.$story) : undefined;
   }
 
   /* @override */
   loadCollection(path: string): Promise<SBStory[]> {
-    return this._adapter.fetchCollection(path).then(c => {
-      const collection = this._serializer.normalizeCollection(c);
-      // collection.forEach(story => this._setStoryObject(story));
-      this._setCollectionObject(path, collection);
-      return collection;
-    });
+    return this._fetchCollectionFromAdapter(path).map(rl => rl.map(r => r.$story)).toPromise();
   }
   /* @override */
   reloadCollection(path: string): Promise<SBStory[]> {
-    return this.loadCollection(path);
-  }
-
-
-
-  /* @internal */
-  private _peekCollectionObject(path: string): CollectionObject {
-    return this._collections[path] || undefined;
-  }
-
-  /* @internal */
-  private _setCollectionObject(path: string, collection: SBStory[]) {
-    if (!Array.isArray(collection))
-      return;
-    const result = this._peekCollectionObject(path);
-    // collection.forEach(s => this._setStoryObject(s));
-    if (result) {
-      result.collection = collection;
-      this._notifyCollectionUpdate(path);
-    } else {
-      this._collections[path] = {
-        collection: collection,
-        observers: []
-      };
-    }
-  }
-
-  /* @internal */
-  private _notifyCollectionUpdate(path: string) {
-    const obj = this._peekCollectionObject(path);
-    if (obj && obj.observers)
-      obj.observers.forEach(o => o.next(obj.collection));
-  }
-
-  /* @internal */
-  private _notifyCollectionError(path: string, error: any) {
-    const obj = this._peekCollectionObject(path);
-    if (obj && obj.observers)
-      obj.observers.forEach(o => o.error(error));
+    return null;
   }
 
   /* @internal */
@@ -350,6 +290,46 @@ export class SBDefaultStore implements SBStore {
       record.next(story);
     });
 
+    return record;
+  }
+
+  /* @internal */
+  private _getCollectionRecord(pathOrCollection: string | SBStoryRecord[]): SBCollectionRecord {
+    return this._collections.find(
+      r => r.path === pathOrCollection || r.$collection === pathOrCollection);
+  }
+
+  /* @internal */
+  private _fetchCollectionFromAdapter(pathOrCollection: string | SBStoryRecord[]):
+    SBCollectionRecord {
+    let record = this._getCollectionRecord(pathOrCollection);
+    let path = <string>pathOrCollection;
+    if (!record) {
+      record = new SBCollectionRecord();
+      this._collections.push(record);
+    } else {
+      path = record.path;
+    }
+
+    this._adapter.fetchCollection(path).then(c => {
+      const collection = this._serializer.normalizeCollection(c);
+
+      const existingRecord = this._getCollectionRecord(path);
+      if (existingRecord && existingRecord === record) {
+        record._parent = existingRecord;
+      }
+
+      record.next(collection.map(story => {
+        let storyRecord = this._getStoryRecord(story.id);
+        if (storyRecord) {
+          storyRecord.next(story);
+        } else {
+          storyRecord = new SBStoryRecord(story);
+          this._stories.push(storyRecord);
+        }
+        return storyRecord;
+      }));
+    });
     return record;
   }
 }
