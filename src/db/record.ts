@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs/Subscription';
 
 export class SBRecord<T> extends Subject<T> {
 
-  private _valueOnThisLevel: T;
-  private _parentRecord: SBRecord<T>;
+  protected _valueOnThisLevel: T;
+  protected _parentRecord: SBRecord<T>;
 
   /* @internal */
   protected get _value() {

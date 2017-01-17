@@ -4,7 +4,8 @@ import { SBStoryRecord } from './story_record';
 
 export class SBCollectionRecord extends SBRecord<SBStoryRecord[]> {
 
-  private _pathOnThisLevel: string;
+  protected _valueOnThisLevel = [];
+  protected _pathOnThisLevel: string;
 
   get path() {
     return this._parent ? (<SBCollectionRecord>this._parent).path : this._pathOnThisLevel;
@@ -17,6 +18,18 @@ export class SBCollectionRecord extends SBRecord<SBStoryRecord[]> {
       (<SBCollectionRecord>this._parent).path = value;
     } else {
       this._pathOnThisLevel = value;
+    }
+  }
+
+  protected set _value(value: SBStoryRecord[]) {
+    if (!this._parentRecord) {
+      this._valueOnThisLevel.forEach(r => r.unsubscribe());
+      this._valueOnThisLevel = value;
+      value.forEach(r => r.subscribe(
+        s => this.next(this._valueOnThisLevel)),
+        error => {
+          // TODO - remove story record from the collection
+        });
     }
   }
 
