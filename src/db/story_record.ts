@@ -13,12 +13,12 @@ export class SBStoryRecord extends SBRecord<SBStory> {
 
   /* unimplemented - will change in the future */
   save(): void {
-    throw new MethodNotAvailable();
+    throw new MethodNotAvailableError();
   }
 
   /* unimplemented - will change in the future */
   remove(): void {
-    throw new MethodNotAvailable();
+    throw new MethodNotAvailableError();
   }
 }
 
@@ -31,10 +31,10 @@ export class StoryUnsubscribedError extends Error {
   }
 }
 
-export class MethodNotAvailable extends Error {
+export class MethodNotAvailableError extends Error {
   constructor() {
     const err: any = super('method not yet available');
-    (<any>this).name = err.name = 'MethodNotAvailable';
+    (<any>this).name = err.name = 'MethodNotAvailableError';
     (<any>this).stack = err.stack;
     (<any>this).message = err.message;
   }
