@@ -3,6 +3,11 @@ sudo: false
 node_js:
 - '6'
 
+# blocklist
+branches:
+  except:
+  - feat/linker
+
 addons:
   firefox: latest
   apt:
