@@ -2,7 +2,7 @@ import { SBRecord } from './record';
 import { SBStory } from './model';
 import { SBStoryRecord } from './story_record';
 
-export class SBCollectionRecord extends SBRecord<SBStoryRecord[]> {
+export class SBCollectionRecord extends SBRecord<SBStoryRecord[], SBCollectionRecord> {
 
   protected _valueOnThisLevel = [];
   protected _pathOnThisLevel: string;

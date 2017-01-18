@@ -10,17 +10,14 @@ import { Injectable } from '@angular/core';
 import { SBStory } from './model';
 import { SBAdapter } from './adapter';
 import { SBSerializer } from './serializer';
-// import { SBLinker } from '../linker/linker';
-import { SBStoryRecord } from './story_record';
+import { SBLinker } from '../linker/linker';
+import { SBStoryRecord, SBStoryVersion } from './story_record';
 import { SBCollectionRecord } from './collection_record';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
-
-type StoryObject = { story: SBStory; version?: string; observers: Observer<SBStory>[] };
-type CollectionObject = { collection: SBStory[]; observers: Observer<SBStory[]>[] };
 
 /**
  * The SBStore will store, load, fetch and normalize stories.
@@ -184,17 +181,19 @@ export abstract class SBStore {
 @Injectable()
 export class SBDefaultStore implements SBStore {
 
-  private _storiesOld: StoryObject[] = [];
-  private _storyObservables: SBStoryRecord[] = [];
   private _stories: SBStoryRecord[] = [];
   private _collections: SBCollectionRecord[] = [];
-  private _lastPeekedStory: StoryObject;
-  private _collectionsOld: { [key: string]: CollectionObject } = {};
 
-  constructor(private _adapter: SBAdapter, private _serializer: SBSerializer) {
-    // _linker.onEditMode().subscribe(isEditMode => {
-    //   console.log('edit ' + isEditMode);
-    // });
+  constructor(private _adapter: SBAdapter, private _serializer: SBSerializer,
+    private _linker: SBLinker) {
+    _linker.onEditMode().subscribe(isEditMode => {
+      if (isEditMode) {
+        // Enter Edit Mode
+        console.log('enter edit mode');
+      } else {
+        // Leave Edit Mode
+      }
+    });
   }
 
   /* @override */
@@ -270,13 +269,14 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @internal */
-  private _fetchStoryFromAdapter(idOrSlugOrStory) {
+  private _fetchStoryFromAdapter(idOrSlugOrStory, version = SBStoryVersion.Published) {
     const slugOrId: number | string = idOrSlugOrStory['id'] || idOrSlugOrStory;
     let record = this._getStoryRecord(idOrSlugOrStory);
     if (!record) {
       record = new SBStoryRecord();
       this._stories.push(record);
     }
+    console.log('fetch');
     this._adapter.fetchStory(slugOrId, '').then(s => {
       const story = this._serializer.normalizeStory(s);
       if (slugOrId !== story.id && slugOrId !== story.slug) {
@@ -287,6 +287,10 @@ export class SBDefaultStore implements SBStore {
       if (existingRecord && existingRecord !== record) {
         record._parent = existingRecord;
       }
+      // fallback because friend properties are not implemented in
+      // Typescript for now. More information in SBStoryRecord
+      record['_version'] = version;
+
       record.next(story);
     });
 

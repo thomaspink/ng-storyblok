@@ -4,16 +4,16 @@ import { Observer, PartialObserver } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
-export class SBRecord<T> extends Subject<T> {
+export abstract class SBRecord<V, P extends SBRecord<V, P>> extends Subject<V> {
 
-  protected _valueOnThisLevel: T;
-  protected _parentRecord: SBRecord<T>;
+  protected _valueOnThisLevel: V;
+  protected _parentRecord: P;
 
   /* @internal */
   protected get _value() {
     return this._parentRecord ? this._parentRecord._value : this._valueOnThisLevel;
   }
-  protected set _value(value: T) {
+  protected set _value(value: V) {
     if (this._parentRecord) {
       this._parentRecord._value = value;
     } else {
@@ -23,7 +23,7 @@ export class SBRecord<T> extends Subject<T> {
 
   /* @internal */
   get _parent() { return this._parentRecord; }
-  set _parent(value: SBRecord<T>) {
+  set _parent(value: P) {
     if (this._parentRecord) {
       throw new ParentAlreadyExistsError();
     }
@@ -41,7 +41,7 @@ export class SBRecord<T> extends Subject<T> {
    * @param {SBStory} [story]
    * @memberOf SBRecord
    */
-  constructor(value?: T) {
+  constructor(value?: V) {
     super();
     if (value) {
       this._value = value;
@@ -57,8 +57,8 @@ export class SBRecord<T> extends Subject<T> {
    * @returns {SBRecord}
    * @memberOf SBRecord
    */
-  static create<T>(value?: T): SBRecord<T> {
-    return new SBRecord<T>(value);
+  static create<V, P extends SBRecord<V, P>>(value?: V): SBRecord<V, P> {
+    throw new OverwriteByImplementationsError();
   }
 
   /**
@@ -69,7 +69,7 @@ export class SBRecord<T> extends Subject<T> {
    * @returns {SBRecord}
    * @memberOf SBRecord
    */
-  lift(operator: Operator<T, T>): Observable<T> {
+  lift(operator: Operator<V, V>): Observable<V> {
     const observable = this.asObservable();
     (<any>observable).operator = operator;
     return observable;
@@ -83,7 +83,7 @@ export class SBRecord<T> extends Subject<T> {
    * @return {void}
    * @memberOf SBRecord
    */
-  next(value: T): void {
+  next(value: V): void {
     if (this.closed) {
       throw new UnsubscribedError();
     }
@@ -138,11 +138,11 @@ export class SBRecord<T> extends Subject<T> {
    * @memberOf SBRecord
    */
   subscribe(): Subscription;
-  subscribe(observer: PartialObserver<T>): Subscription;
-  subscribe(next?: (value: T) => void,
+  subscribe(observer: PartialObserver<V>): Subscription;
+  subscribe(next?: (value: V) => void,
     error?: (error: any) => void, complete?: () => void): Subscription;
-  subscribe(observerOrNext?: PartialObserver<T> |
-    ((value: T) => void), error?: (error: any) => void, complete?: () => void): Subscription {
+  subscribe(observerOrNext?: PartialObserver<V> |
+    ((value: V) => void), error?: (error: any) => void, complete?: () => void): Subscription {
     return this._parentRecord ? this._parentRecord.subscribe.apply(this._parentRecord, arguments) :
       super.subscribe.apply(this, arguments);
   }
@@ -165,8 +165,8 @@ export class SBRecord<T> extends Subject<T> {
    * @returns {Observable<T>}
    * @memberOf SBRecord
    */
-  asObservable(): Observable<T> {
-    const observable = new Observable<T>();
+  asObservable(): Observable<V> {
+    const observable = new Observable<V>();
     (<any>observable).source = this._parentRecord || this;
     return observable;
   }
@@ -185,6 +185,15 @@ export class UnsubscribedError extends Error {
   constructor() {
     const err: any = super('unsubscribed');
     (<any>this).name = err.name = 'UnsubscribedError';
+    (<any>this).stack = err.stack;
+    (<any>this).message = err.message;
+  }
+}
+
+export class OverwriteByImplementationsError extends Error {
+  constructor() {
+    const err: any = super('overwrite by implementations');
+    (<any>this).name = err.name = 'OverwriteByImplementationsError';
     (<any>this).stack = err.stack;
     (<any>this).message = err.message;
   }

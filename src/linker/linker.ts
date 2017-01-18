@@ -17,14 +17,18 @@ import 'rxjs/add/operator/map';
 export class SBLinker {
 
   private _onEditMode: Subject<boolean> = new Subject();
+  private _onPublish: Observable<any>;
 
   constructor(private _bus: SBMessageBus) {
     _bus.on('pingBack').subscribe(_ => _bus.send('initialized'));
+    _bus.on('enterEditmode').map(_ => this._onEditMode.next(true));
+    this._onPublish = this._bus.on('published');
+    this._onPublish.subscribe(_ => this._onEditMode.next(false));
     _bus.send('ping');
   }
 
   onEditMode(): Observable<boolean> {
-    return this._bus.on('enterEditmode').map(_ => true);
+    return this._onEditMode.asObservable();
   }
 
   onStoryChange(id: number): Observable<any> {
@@ -36,7 +40,6 @@ export class SBLinker {
   }
 
   onStoryPublish(id) {
-    const o = this._bus.on('published');
-    return o.filter(data => data.storyId === id);
+    return this._onPublish.filter(data => data.storyId === id);
   }
 }

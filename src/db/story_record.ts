@@ -1,14 +1,42 @@
 import { SBRecord } from './record';
 import { SBStory } from './model';
 
-export class SBStoryRecord extends SBRecord<SBStory> {
+export enum SBStoryVersion {
+  Published,
+  Draft
+}
+
+export class SBStoryRecord extends SBRecord<SBStory, SBStoryRecord> {
+
+  protected _versionAtThisLevel: SBStoryVersion = SBStoryVersion.Published;
 
   /** Reference to the latest loaded story */
-  get $story() {
+  get $story(): SBStory {
     if (this.closed) {
       throw new StoryUnsubscribedError();
     }
     return this._value;
+  }
+
+  /**
+   * Should be a friend property.
+   * Proposal for Typescript is under consideration
+   * https://github.com/Microsoft/TypeScript/issues/7692
+   *
+   * As a fallback for now use `record['_version']` as suggested in
+   * the issue.
+   *
+   * @internal
+   */
+  protected get _version(): SBStoryVersion {
+    return this._parent ? this._parent._version : this._versionAtThisLevel;
+  }
+  protected set _version(value: SBStoryVersion) {
+    if (this._parent) {
+      this._parent._version = value;
+    } else {
+      this._versionAtThisLevel = value;
+    }
   }
 
   /* unimplemented - will change in the future */
