@@ -9,9 +9,6 @@
 <a href="https://badge.fury.io/js/ng-storyblok">
   <img src="https://badge.fury.io/js/ng-storyblok.svg" alt="npm version" height="20">
 </a>
-<a href="https://david-dm.org/">
-  <img src="https://david-dm.org/thomaspink/ng-storyblok.svg" alt="npm dependencies" height="20">
-</a>
 <br><br>
 ## What is ng-storyblok
 This is the home of ng-storyblok, that brings full Storyblok integration in you Angular 2 App. It includes a Directive for rendering storyblok components on the fly as well as injectable Services for loading, caching data and serializing data as well as a high level SDK.
