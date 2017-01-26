@@ -11,11 +11,15 @@ import { SBModule } from 'ng-storyblok';
 
 Now you have to add the imported `SBModule` to the imports array in your AppModule and call the `forRoot` method with a configuration object.
 ```ts
+export function storyblockConfigFactory() {
+  return {
+    // your config goes here
+  };
+}
+
 @NgModule({
   imports: [
-    SBModule.forRoot({
-      // your config goes here
-    })
+    SBModule.forRoot(storyblockConfigFactory)
   ],
   ...
 })
