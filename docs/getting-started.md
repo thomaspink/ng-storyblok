@@ -9,7 +9,7 @@ ng-storyblok provides a NgModule called `SBModule` that has to be imported in yo
 import { SBModule } from 'ng-storyblok';
 ```
 
-Now you have to add the imported `SBModule` to the imports array in your AppModule and call the `forRoot` method with a configuration object.
+Now you have to add the imported `SBModule` to the imports array in your AppModule and call the `forRoot` method with a configuration factory function.
 ```ts
 export function storyblockConfigFactory() {
   return {
