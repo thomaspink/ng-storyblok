@@ -45,11 +45,16 @@ When importing the module you have to provide a configuration to the `forRoot` m
 ```ts
 import { SBModule } from 'ng-storyblok';
 // other imports 
+
+export function storyblockConfigFactory() {
+  return {
+    accessToken: '[[PUBLIC-SB-TOKEN]]'
+  };
+}
+
 @NgModule({
   imports: [
-    SBModule.forRoot({
-      accessToken: '[[PUBLIC-SB-TOKEN]]'
-    })
+    SBModule.forRoot(storyblockConfigFactory)
   ],
   ...
 })
