@@ -190,8 +190,13 @@ export class SBDefaultStore implements SBStore {
       if (isEditMode) {
         // Enter Edit Mode
         console.log('enter edit mode');
+        this._stories.forEach(r => {
+          console.log(r.$story);
+          this._fetchStoryFromAdapter(r, SBStoryVersion.Draft);
+        });
       } else {
         // Leave Edit Mode
+        console.log('leave edit mode');
       }
     });
   }
@@ -269,15 +274,26 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @internal */
-  private _fetchStoryFromAdapter(idOrSlugOrStory, version = SBStoryVersion.Published) {
-    const slugOrId: number | string = idOrSlugOrStory['id'] || idOrSlugOrStory;
-    let record = this._getStoryRecord(idOrSlugOrStory);
-    if (!record) {
-      record = new SBStoryRecord();
-      this._stories.push(record);
+  /* tslint:disable-next-line:max-line-length */
+  private _fetchStoryFromAdapter(slugOrId: number | string, version?: SBStoryVersion): SBStoryRecord;
+  private _fetchStoryFromAdapter(story: SBStory, version?: SBStoryVersion): SBStoryRecord;
+  private _fetchStoryFromAdapter(record: SBStoryRecord, version?: SBStoryVersion): SBStoryRecord;
+  private _fetchStoryFromAdapter(idOrSlugOrStoryOrRecord, version = SBStoryVersion.Published) {
+    let record = idOrSlugOrStoryOrRecord instanceof SBStoryRecord ?
+      idOrSlugOrStoryOrRecord : this._getStoryRecord(idOrSlugOrStoryOrRecord);
+    let slugOrId: number | string;
+    if (record) {
+      if (record.$story) {
+      // console.log(record, record.$story);
+        slugOrId = record.$story.id;
+      } else {
+        slugOrId = idOrSlugOrStoryOrRecord['id'] || idOrSlugOrStoryOrRecord;
+        record = new SBStoryRecord();
+        this._stories.push(record);
+      }
     }
-    console.log('fetch');
-    this._adapter.fetchStory(slugOrId, '').then(s => {
+    console.log(slugOrId);
+    this._adapter.fetchStory(slugOrId, version === SBStoryVersion.Draft ? 'draft' : '').then(s => {
       const story = this._serializer.normalizeStory(s);
       if (slugOrId !== story.id && slugOrId !== story.slug) {
         throw new Error(`The id or slug "${slugOrId}" provided for loading a story does not ` +
@@ -292,6 +308,9 @@ export class SBDefaultStore implements SBStore {
       record['_version'] = version;
 
       record.next(story);
+    }).catch(reason => {
+      console.error(reason);
+      record.error(reason);
     });
 
     return record;

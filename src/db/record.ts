@@ -90,6 +90,7 @@ export abstract class SBRecord<V, P extends SBRecord<V, P>> extends Subject<V> {
     if (this._parentRecord) {
       this._parentRecord.next(value);
     } else {
+      console.log(value);
       this._value = value;
     }
     super.next(value);

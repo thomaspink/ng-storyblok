@@ -8,6 +8,8 @@
 
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
+import { InvalidSlugOrIdAdapterError, InvalidVersionAdapterError,
+  ResponseBodyEmptyAdapterError } from './adapter_errors';
 import { SBStorySchema } from './schema';
 import { SBConfig } from '../config';
 
@@ -88,25 +90,28 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
   /* @override */
   fetchStory(slugOrId: string | number, version?: string): Promise<SBStorySchema> {
     if (typeof slugOrId !== 'number' && typeof slugOrId !== 'string')
-      throw new TypeError(
-        `You have to provide the slug(string) or the id(number) as the first parameter!`);
+      throw new InvalidSlugOrIdAdapterError();
     if (typeof version !== 'string' && typeof version !== 'undefined')
-      throw new TypeError('The version parameter for `fetchStory` has to be a string!');
+      throw new InvalidVersionAdapterError();
 
     return new Promise((resolve, reject) => {
       const key = 'story#' + slugOrId;
-      if (!this._hasPending(key))
-        this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`)
+      if (!this._hasPending(key)) {
+        let url = `${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`;
+        url += version ? `&version=${version}` : '';
+        this._http.get(url)
           .subscribe(
             response => {
               const body = response.json();
               if (body)
                 this._resolvePending(key, body);
               else
-                this._rejectPending(key, 'Could not load Story. Response body is empty!');
+                this._rejectPending(key, new ResponseBodyEmptyAdapterError(slugOrId));
           }, error => {
+            // if(this._config.accessToken && )
             this._rejectPending(key, error);
           });
+      }
       this._addPending(key, resolve, reject);
     });
   }

@@ -21,7 +21,7 @@ export class SBLinker {
 
   constructor(private _bus: SBMessageBus) {
     _bus.on('pingBack').subscribe(_ => _bus.send('initialized'));
-    _bus.on('enterEditmode').map(_ => this._onEditMode.next(true));
+    _bus.on('enterEditmode').subscribe(_ => this._onEditMode.next(true));
     this._onPublish = this._bus.on('published');
     this._onPublish.subscribe(_ => this._onEditMode.next(false));
     _bus.send('ping');
