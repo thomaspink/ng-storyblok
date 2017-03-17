@@ -96,7 +96,8 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
     return new Promise((resolve, reject) => {
       const key = 'story#' + slugOrId;
       if (!this._hasPending(key))
-        this._http.get(`${this._host}/stories/${slugOrId}?token=${this._config.accessToken}`)
+        this._http.get(`${this._host}/stories/${slugOrId}` +
+        `?token=${this._config.accessToken}&t=${Date.now()}`)
           .subscribe(
             response => {
               const body = response.json();
@@ -119,7 +120,8 @@ export class SBHttpAdapter extends SBBaseAdapter implements SBAdapter  {
     return new Promise((resolve, reject) => {
     const key = 'collection#' + path;
     if (!this._hasPending(key))
-      this._http.get(`${this._host}/stories/?token=${this._config.accessToken}&starts_with=${path}`)
+      this._http.get(`${this._host}/stories/` +
+      `?token=${this._config.accessToken}&starts_with=${path}&t=${Date.now()}`)
         .subscribe(
           response => {
               const body = response.json();
