@@ -104,7 +104,7 @@ export class SBDefaultSerializer implements SBSerializer {
       throw new Error(`Could not normalize storyblok component.
         The provided payload does not math the component schema.`);
     }
-    const properties = {};
+    const properties: {[key: string]: any} = {};
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
         if (key !== '_uid' && key !== 'component') {

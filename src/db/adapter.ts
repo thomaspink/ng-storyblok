@@ -40,41 +40,38 @@ export abstract class SBAdapter {
 
 /* @internal */
 export class SBBaseAdapter {
-  private _pending: {
-    [key: string]: { resolve: (s: any) => void, reject: (error: any) => void }[] } = {};
+  // tslint:disable-next-line:max-line-length
+  private _pending = new Map<string, { resolve: (s: any) => void, reject: (error: any) => void }[]>();
 
   /* @internal */
   protected _addPending(key: string, resolve: (s: any) => void,
       reject: (error: any) => void = () => undefined) {
-    if (!Array.isArray(this._pending[key])) {
-      this._pending[key] = [{resolve: resolve, reject: reject}];
+    if (this._pending.has(key)) {
+      this._pending.set(key, [{resolve: resolve, reject: reject}]);
     } else {
-      this._pending[key].push({resolve: resolve, reject: reject});
+      this._pending.get(key)!.push({resolve: resolve, reject: reject});
     }
   }
 
   /* @internal */
   protected _hasPending(key: string) {
-    const pending = this._pending[key];
-    return Array.isArray(pending) && pending.length;
+    return this._pending.has(key);
   }
 
   /* @internal */
   protected _resolvePending(key: string, payload: any) {
-    const pending = this._pending[key];
-    if (Array.isArray(pending)) {
-      pending.forEach(p => p.resolve(payload));
+    if (this._pending.has(key)) {
+      this._pending.get(key)!.forEach(p => p.resolve(payload));
     }
-    this._pending[key] = undefined;
+    this._pending.delete(key);
   }
 
   /* @internal */
   protected _rejectPending(key: string, error: any) {
-    const pending = this._pending[key];
-    if (Array.isArray(pending)) {
-      pending.forEach(p => p.reject(error));
+    if (this._pending.has(key)) {
+      this._pending.get(key)!.forEach(p => p.reject(error));
     }
-    this._pending[key] = undefined;
+    this._pending.delete(key);
   }
 }
 

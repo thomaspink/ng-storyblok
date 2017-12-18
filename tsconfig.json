@@ -5,6 +5,7 @@
     "module": "es2015",
     "target": "es5",
     "noImplicitAny": false,
+    "strictNullChecks": true,
     "outDir": "dist",
     "rootDir": "src",
     "sourceMap": true,

@@ -76,7 +76,7 @@ export abstract class SBStore  {
    *
    * @memberOf SBStore
    */
-  abstract peekStory(slugOrId: number | string, version?: string): SBStory;
+  abstract peekStory(slugOrId: number | string, version?: string): SBStory | undefined;
 
   /**
    * Get a story by a given slug or ID by triggering a fetch on the adapter
@@ -148,7 +148,7 @@ export abstract class SBStore  {
    *
    * @memberOf SBStore
    */
-  abstract peekCollection(path: string): SBStory[];
+  abstract peekCollection(path: string): SBStory[] | undefined;
 
   /**
    * Get a collection of stories by a given path by triggering a fetch on the adapter
@@ -176,7 +176,7 @@ export abstract class SBStore  {
   abstract reloadCollection(path: string): Promise<SBStory[]>;
 }
 
-let __UNDEFINED__;
+let __UNDEFINED__ = void 0;
 
 @Injectable()
 export class SBDefaultStore implements SBStore {
@@ -217,7 +217,7 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @override */
-  peekStory(slugOrId: number | string, version?: string): SBStory {
+  peekStory(slugOrId: number | string, version?: string): SBStory | undefined {
     const result = this._peekStoryObject(slugOrId, version);
     return !!result ? result.story : __UNDEFINED__;
   }
@@ -270,7 +270,7 @@ export class SBDefaultStore implements SBStore {
   }
 
   /* @override */
-  peekCollection(path: string): SBStory[] {
+  peekCollection(path: string): SBStory[] | undefined {
     const result = this._peekCollectionObject(path);
     return !!result ? result.collection : __UNDEFINED__;
   }
@@ -309,7 +309,7 @@ export class SBDefaultStore implements SBStore {
     this._lastPeekedStory = this._stories.find(s => {
       return (s.story.id === id || s.story.slug === slug) && !version ||
         (!!version && s.version === version);
-    });
+    })!;
     return this._lastPeekedStory || __UNDEFINED__;
   }
 

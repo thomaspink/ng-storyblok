@@ -27,10 +27,11 @@ export const SB_PROVIDERS: Provider[] = [
  * @class SbModule
  */
 @NgModule({
+  id: module.id,
   imports: [HttpModule],
   providers: SB_PROVIDERS,
   declarations: [SBOutlet],
-  exports: [SBOutlet],
+  exports: [SBOutlet]
 })
 export class SBModule {
   static forRoot(configFactory: () => SBConfig): ModuleWithProviders {

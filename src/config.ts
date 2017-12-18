@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://github.com/thomaspink/ng-storyblok/blob/master/LICENSE
  */
 
-import { Type, OpaqueToken } from '@angular/core';
+import { Type } from '@angular/core';
 
 export abstract class SBConfig {
   accessToken: string;

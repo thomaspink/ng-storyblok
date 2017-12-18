@@ -26,7 +26,7 @@ import { SBConfig } from '../config';
  */
 @Directive({ selector: 'sb-outlet' })
 export class SBOutlet implements OnChanges, OnDestroy {
-  private activated: ComponentRef<any>[];
+  private activated: ComponentRef<any>[] | null;
   private _model: SBComponent[] = [];
 
   @Output('activate') activateEvents = new EventEmitter<any>();
@@ -71,8 +71,10 @@ export class SBOutlet implements OnChanges, OnDestroy {
    *
    * @memberOf SBOutlet
    */
-  activate(schemas: SBComponent[], loadedResolver: ComponentFactoryResolver,
-    loadedInjector: Injector, providers: ResolvedReflectiveProvider[]): ComponentRef<any>[] {
+  activate(schemas: SBComponent[],
+    loadedResolver: ComponentFactoryResolver | null,
+    loadedInjector: Injector | null,
+    providers: ResolvedReflectiveProvider[]): ComponentRef<any>[] {
     if (this.isActivated) {
       throw new Error('Cannot activate an already activated sb-outlet');
     }
@@ -85,8 +87,10 @@ export class SBOutlet implements OnChanges, OnDestroy {
   }
 
   /* @internal */
-  private _activateComponent<C>(schema: SBComponent, loadedResolver: ComponentFactoryResolver,
-    loadedInjector: Injector, providers: ResolvedReflectiveProvider[]): ComponentRef<C> {
+  private _activateComponent<C>(schema: SBComponent,
+    loadedResolver: ComponentFactoryResolver | null,
+    loadedInjector: Injector | null,
+    providers: ResolvedReflectiveProvider[]): ComponentRef<C> {
 
     if (!this.config.map) {
       throw new Error(
@@ -110,11 +114,11 @@ export class SBOutlet implements OnChanges, OnDestroy {
     const inj = ReflectiveInjector.fromResolvedProviders(providers, injector);
     const ref = this.location.createComponent(factory, this.location.length, inj, []);
 
-    const changes = {};
+    const changes: {[key: string]: SimpleChange} = {};
     for (let key in schema.model) {
       const value = schema.model[key];
       if (schema.model.hasOwnProperty(key) && value !== ref.instance[key]) {
-        changes[key] = new SimpleChange(ref.instance[key], value);
+        changes[key] = new SimpleChange(ref.instance[key], value, false);
         ref.instance[key] = value;
       }
     }
